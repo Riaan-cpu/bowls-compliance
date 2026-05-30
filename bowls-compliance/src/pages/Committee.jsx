@@ -88,33 +88,28 @@ export default function Committee({ session }) {
           </div>
         )}
 
-        {/* MEETINGS */}
         {active === 'meetings' && <MeetingsPage />}
-
-        {/* EVENTS */}
         {active === 'events' && <EventsPage />}
-
-        {/* STAFF */}
         {active === 'staff' && <StaffPage />}
-
-        {/* MEMBERS */}
         {active === 'members' && <MembersPage />}
-
-        {/* PROJECTS */}
         {active === 'projects' && <ProjectsPage />}
-
-        {/* PORTAL ADMIN */}
         {active === 'portal_admin' && <PortalAdminPage />}
-
       </div>
     </div>
   )
 }
 
+// ─── SHARED STYLES ───────────────────────────────────────
+const btn = (color) => ({ padding: '8px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 })
+const editBtn = { padding: '6px 14px', background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }
+const inputStyle = { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14 }
+const cardStyle = { background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 12 }
+
 // ─── MEETINGS ────────────────────────────────────────────
 function MeetingsPage() {
   const [items, setItems] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [editId, setEditId] = useState(null)
   const [form, setForm] = useState({ title: '', meeting_date: '', type: 'Agenda', notes: '', file_url: '' })
   const [saving, setSaving] = useState(false)
   const [tab, setTab] = useState('upcoming')
@@ -126,11 +121,27 @@ function MeetingsPage() {
     if (data) setItems(data)
   }
 
-  async function addItem() {
-    setSaving(true)
-    await supabase.from('committee_meetings').insert([form])
+  function openAdd() {
+    setEditId(null)
     setForm({ title: '', meeting_date: '', type: 'Agenda', notes: '', file_url: '' })
-    setShowForm(false); setSaving(false); fetchItems()
+    setShowForm(true)
+  }
+
+  function openEdit(item) {
+    setEditId(item.id)
+    setForm({ title: item.title || '', meeting_date: item.meeting_date || '', type: item.type || 'Agenda', notes: item.notes || '', file_url: item.file_url || '' })
+    setShowForm(true)
+  }
+
+  async function saveItem() {
+    setSaving(true)
+    if (editId) {
+      await supabase.from('committee_meetings').update(form).eq('id', editId)
+    } else {
+      await supabase.from('committee_meetings').insert([form])
+    }
+    setForm({ title: '', meeting_date: '', type: 'Agenda', notes: '', file_url: '' })
+    setShowForm(false); setEditId(null); setSaving(false); fetchItems()
   }
 
   async function deleteItem(id) {
@@ -138,13 +149,8 @@ function MeetingsPage() {
     fetchItems()
   }
 
-  const s = {
-    card: { background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 12 },
-    input: { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14 },
-    btn: (color) => ({ padding: '8px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
-    tag: (type) => ({ background: type === 'Minutes' ? '#dcfce7' : type === 'Agenda' ? '#dbeafe' : '#fef3c7', color: type === 'Minutes' ? '#16a34a' : type === 'Agenda' ? '#1d4ed8' : '#d97706', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }),
-    tabBtn: (active) => ({ padding: '8px 20px', background: active ? '#1e3a5f' : 'white', color: active ? 'white' : '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
-  }
+  const tag = (type) => ({ background: type === 'Minutes' ? '#dcfce7' : type === 'Agenda' ? '#dbeafe' : '#fef3c7', color: type === 'Minutes' ? '#16a34a' : type === 'Agenda' ? '#1d4ed8' : '#d97706', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 })
+  const tabBtn = (active) => ({ padding: '8px 20px', background: active ? '#1e3a5f' : 'white', color: active ? 'white' : '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 })
 
   return (
     <div>
@@ -153,42 +159,47 @@ function MeetingsPage() {
           <div style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f' }}>📝 Meetings</div>
           <div style={{ color: '#64748b' }}>Agendas, registers, minutes and archive</div>
         </div>
-        <button style={s.btn('#1e3a5f')} onClick={() => setShowForm(!showForm)}>+ Add Document</button>
+        <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add Document</button>
       </div>
 
       {showForm && (
-        <div style={{ ...s.card, background: '#f8fafc' }}>
+        <div style={{ ...cardStyle, background: '#f8fafc' }}>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Document' : '+ New Document'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
-            <input placeholder="Title (e.g. May 2026 Committee Meeting)" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={s.input} />
-            <input type="date" value={form.meeting_date} onChange={e => setForm({ ...form, meeting_date: e.target.value })} style={s.input} />
-            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={s.input}>
+            <input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inputStyle} />
+            <input type="date" value={form.meeting_date} onChange={e => setForm({ ...form, meeting_date: e.target.value })} style={inputStyle} />
+            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={inputStyle}>
               <option>Agenda</option><option>Register</option><option>Minutes</option><option>Financials</option>
             </select>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
-            <input placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={s.input} />
-            <input placeholder="File URL (optional)" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} style={s.input} />
+            <input placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={inputStyle} />
+            <input placeholder="File URL (optional)" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} style={inputStyle} />
           </div>
-          <button style={s.btn('#16a34a')} onClick={addItem} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button style={btn('#16a34a')} onClick={saveItem} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
+            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+          </div>
         </div>
       )}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {['upcoming', 'archive'].map(t => <button key={t} style={s.tabBtn(tab === t)} onClick={() => setTab(t)}>{t === 'upcoming' ? 'Recent' : 'Archive'}</button>)}
+        {['upcoming', 'archive'].map(t => <button key={t} style={tabBtn(tab === t)} onClick={() => setTab(t)}>{t === 'upcoming' ? 'Recent' : 'Archive'}</button>)}
       </div>
 
       {items.map(item => (
-        <div key={item.id} style={{ ...s.card, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div key={item.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <span style={s.tag(item.type)}>{item.type}</span>
+            <span style={tag(item.type)}>{item.type}</span>
             <div>
               <div style={{ fontWeight: 600, color: '#1e293b' }}>{item.title}</div>
               <div style={{ fontSize: 13, color: '#64748b' }}>{item.meeting_date}{item.notes && ` · ${item.notes}`}</div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            {item.file_url && <a href={item.file_url} target="_blank" rel="noreferrer"><button style={s.btn('#2d5080')}>View</button></a>}
-            <button onClick={() => deleteItem(item.id)} style={s.btn('#dc2626')}>Delete</button>
+            {item.file_url && <a href={item.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>View</button></a>}
+            <button onClick={() => openEdit(item)} style={editBtn}>✏️ Edit</button>
+            <button onClick={() => deleteItem(item.id)} style={btn('#dc2626')}>Delete</button>
           </div>
         </div>
       ))}
@@ -202,6 +213,7 @@ function EventsPage() {
   const [events, setEvents] = useState([])
   const [selected, setSelected] = useState(null)
   const [showForm, setShowForm] = useState(false)
+  const [editId, setEditId] = useState(null)
   const [form, setForm] = useState({ title: '', event_date: '', type: 'Competition', description: '', people_count: '', required_items: '', volunteers: '', notes: '', damage_report: '' })
   const [saving, setSaving] = useState(false)
 
@@ -212,11 +224,28 @@ function EventsPage() {
     if (data) setEvents(data)
   }
 
-  async function addEvent() {
-    setSaving(true)
-    await supabase.from('committee_events').insert([form])
+  function openAdd() {
+    setEditId(null)
     setForm({ title: '', event_date: '', type: 'Competition', description: '', people_count: '', required_items: '', volunteers: '', notes: '', damage_report: '' })
-    setShowForm(false); setSaving(false); fetchEvents()
+    setShowForm(true)
+  }
+
+  function openEdit(ev) {
+    setEditId(ev.id)
+    setForm({ title: ev.title || '', event_date: ev.event_date || '', type: ev.type || 'Competition', description: ev.description || '', people_count: ev.people_count || '', required_items: ev.required_items || '', volunteers: ev.volunteers || '', notes: ev.notes || '', damage_report: ev.damage_report || '' })
+    setShowForm(true)
+    setSelected(null)
+  }
+
+  async function saveEvent() {
+    setSaving(true)
+    if (editId) {
+      await supabase.from('committee_events').update(form).eq('id', editId)
+    } else {
+      await supabase.from('committee_events').insert([form])
+    }
+    setForm({ title: '', event_date: '', type: 'Competition', description: '', people_count: '', required_items: '', volunteers: '', notes: '', damage_report: '' })
+    setShowForm(false); setEditId(null); setSaving(false); fetchEvents()
   }
 
   async function deleteEvent(id) {
@@ -225,13 +254,9 @@ function EventsPage() {
   }
 
   const typeColor = { Competition: '#7c3aed', 'Venue Hire': '#d97706', Social: '#16a34a', Meeting: '#1e3a5f' }
-  const s = {
-    card: { background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 12, cursor: 'pointer' },
-    input: { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' },
-    btn: (color) => ({ padding: '8px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
-    tag: (type) => ({ background: (typeColor[type] || '#64748b') + '20', color: typeColor[type] || '#64748b', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }),
-    label: { fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' },
-  }
+  const tag = (type) => ({ background: (typeColor[type] || '#64748b') + '20', color: typeColor[type] || '#64748b', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 })
+  const label = { fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }
+  const fullInput = { ...inputStyle, width: '100%', boxSizing: 'border-box' }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: selected ? '1fr 1fr' : '1fr', gap: 24 }}>
@@ -241,38 +266,42 @@ function EventsPage() {
             <div style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f' }}>📅 Events & Tasks</div>
             <div style={{ color: '#64748b' }}>Competitions, venue hire, socials and to-do lists</div>
           </div>
-          <button style={s.btn('#1e3a5f')} onClick={() => setShowForm(!showForm)}>+ Add Event</button>
+          <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add Event</button>
         </div>
 
         {showForm && (
-          <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 16 }}>
+          <div style={{ ...cardStyle }}>
+            <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Event' : '+ New Event'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
-              <div><label style={s.label}>Event Title</label><input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={s.input} /></div>
-              <div><label style={s.label}>Date</label><input type="date" value={form.event_date} onChange={e => setForm({ ...form, event_date: e.target.value })} style={s.input} /></div>
-              <div><label style={s.label}>Type</label>
-                <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={s.input}>
+              <div><label style={label}>Event Title</label><input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={fullInput} /></div>
+              <div><label style={label}>Date</label><input type="date" value={form.event_date} onChange={e => setForm({ ...form, event_date: e.target.value })} style={fullInput} /></div>
+              <div><label style={label}>Type</label>
+                <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={fullInput}>
                   <option>Competition</option><option>Venue Hire</option><option>Social</option><option>Meeting</option>
                 </select>
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-              <div><label style={s.label}>Description</label><input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={s.input} /></div>
-              <div><label style={s.label}>Number of People</label><input value={form.people_count} onChange={e => setForm({ ...form, people_count: e.target.value })} style={s.input} /></div>
-              <div><label style={s.label}>Required Items</label><input value={form.required_items} onChange={e => setForm({ ...form, required_items: e.target.value })} style={s.input} /></div>
-              <div><label style={s.label}>Volunteers</label><input value={form.volunteers} onChange={e => setForm({ ...form, volunteers: e.target.value })} style={s.input} /></div>
+              <div><label style={label}>Description</label><input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={fullInput} /></div>
+              <div><label style={label}>Number of People</label><input value={form.people_count} onChange={e => setForm({ ...form, people_count: e.target.value })} style={fullInput} /></div>
+              <div><label style={label}>Required Items</label><input value={form.required_items} onChange={e => setForm({ ...form, required_items: e.target.value })} style={fullInput} /></div>
+              <div><label style={label}>Volunteers</label><input value={form.volunteers} onChange={e => setForm({ ...form, volunteers: e.target.value })} style={fullInput} /></div>
             </div>
-            <div style={{ marginBottom: 12 }}><label style={s.label}>Notes / Comments</label><input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={s.input} /></div>
-            <button style={s.btn('#16a34a')} onClick={addEvent} disabled={saving}>{saving ? 'Saving...' : 'Save Event'}</button>
+            <div style={{ marginBottom: 12 }}><label style={label}>Notes / Comments</label><input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={fullInput} /></div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={btn('#16a34a')} onClick={saveEvent} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update Event' : 'Save Event'}</button>
+              <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+            </div>
           </div>
         )}
 
         {events.map(ev => (
-          <div key={ev.id} style={{ ...s.card, borderLeft: `4px solid ${typeColor[ev.type] || '#64748b'}` }} onClick={() => setSelected(ev)}>
+          <div key={ev.id} style={{ ...cardStyle, borderLeft: `4px solid ${typeColor[ev.type] || '#64748b'}`, cursor: 'pointer' }} onClick={() => setSelected(ev)}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{ev.title}</div>
                 <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{ev.event_date} · {ev.description}</div>
-                <span style={s.tag(ev.type)}>{ev.type}</span>
+                <span style={tag(ev.type)}>{ev.type}</span>
               </div>
               <div style={{ fontSize: 13, color: '#64748b' }}>{ev.people_count && `👥 ${ev.people_count}`}</div>
             </div>
@@ -282,18 +311,21 @@ function EventsPage() {
       </div>
 
       {selected && (
-        <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', height: 'fit-content' }}>
+        <div style={{ ...cardStyle, height: 'fit-content' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
             <div style={{ fontWeight: 700, fontSize: 18, color: '#1e3a5f' }}>{selected.title}</div>
             <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
           </div>
-          {[['Date', selected.event_date], ['Type', selected.type], ['Description', selected.description], ['People', selected.people_count], ['Required Items', selected.required_items], ['Volunteers', selected.volunteers], ['Notes', selected.notes], ['Damage Report', selected.damage_report]].map(([label, value]) => value ? (
-            <div key={label} style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 2 }}>{label}</div>
+          {[['Date', selected.event_date], ['Type', selected.type], ['Description', selected.description], ['People', selected.people_count], ['Required Items', selected.required_items], ['Volunteers', selected.volunteers], ['Notes', selected.notes], ['Damage Report', selected.damage_report]].map(([lbl, value]) => value ? (
+            <div key={lbl} style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 2 }}>{lbl}</div>
               <div style={{ fontSize: 14, color: '#1e293b' }}>{value}</div>
             </div>
           ) : null)}
-          <button style={s.btn('#dc2626')} onClick={() => deleteEvent(selected.id)}>Delete Event</button>
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            <button style={editBtn} onClick={() => openEdit(selected)}>✏️ Edit</button>
+            <button style={btn('#dc2626')} onClick={() => deleteEvent(selected.id)}>Delete</button>
+          </div>
         </div>
       )}
     </div>
@@ -304,6 +336,7 @@ function EventsPage() {
 function StaffPage() {
   const [staff, setStaff] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [editId, setEditId] = useState(null)
   const [form, setForm] = useState({ name: '', id_number: '', contact: '', email: '', position: '', start_date: '', uif_number: '', coida_number: '', notes: '' })
   const [saving, setSaving] = useState(false)
 
@@ -314,22 +347,32 @@ function StaffPage() {
     if (data) setStaff(data)
   }
 
-  async function addStaff() {
-    setSaving(true)
-    await supabase.from('staff').insert([form])
+  function openAdd() {
+    setEditId(null)
     setForm({ name: '', id_number: '', contact: '', email: '', position: '', start_date: '', uif_number: '', coida_number: '', notes: '' })
-    setShowForm(false); setSaving(false); fetchStaff()
+    setShowForm(true)
+  }
+
+  function openEdit(member) {
+    setEditId(member.id)
+    setForm({ name: member.name || '', id_number: member.id_number || '', contact: member.contact || '', email: member.email || '', position: member.position || '', start_date: member.start_date || '', uif_number: member.uif_number || '', coida_number: member.coida_number || '', notes: member.notes || '' })
+    setShowForm(true)
+  }
+
+  async function saveStaff() {
+    setSaving(true)
+    if (editId) {
+      await supabase.from('staff').update(form).eq('id', editId)
+    } else {
+      await supabase.from('staff').insert([form])
+    }
+    setForm({ name: '', id_number: '', contact: '', email: '', position: '', start_date: '', uif_number: '', coida_number: '', notes: '' })
+    setShowForm(false); setEditId(null); setSaving(false); fetchStaff()
   }
 
   async function deleteStaff(id) {
     await supabase.from('staff').delete().eq('id', id)
     fetchStaff()
-  }
-
-  const s = {
-    input: { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14 },
-    btn: (color) => ({ padding: '8px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
-    card: { background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 12 },
   }
 
   return (
@@ -339,28 +382,32 @@ function StaffPage() {
           <div style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f' }}>👤 Staff Records</div>
           <div style={{ color: '#64748b' }}>Contracts, IDs, UIF, COIDA and performance</div>
         </div>
-        <button style={s.btn('#1e3a5f')} onClick={() => setShowForm(!showForm)}>+ Add Staff Member</button>
+        <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add Staff Member</button>
       </div>
 
       {showForm && (
-        <div style={{ ...s.card, background: '#f8fafc' }}>
+        <div style={{ ...cardStyle, background: '#f8fafc' }}>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Staff Member' : '+ New Staff Member'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }}>
-            <input placeholder="Full Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={s.input} />
-            <input placeholder="ID Number" value={form.id_number} onChange={e => setForm({ ...form, id_number: e.target.value })} style={s.input} />
-            <input placeholder="Position" value={form.position} onChange={e => setForm({ ...form, position: e.target.value })} style={s.input} />
-            <input placeholder="Contact Number" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} style={s.input} />
-            <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={s.input} />
-            <input type="date" placeholder="Start Date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} style={s.input} />
-            <input placeholder="UIF Number" value={form.uif_number} onChange={e => setForm({ ...form, uif_number: e.target.value })} style={s.input} />
-            <input placeholder="COIDA Number" value={form.coida_number} onChange={e => setForm({ ...form, coida_number: e.target.value })} style={s.input} />
-            <input placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={s.input} />
+            <input placeholder="Full Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+            <input placeholder="ID Number" value={form.id_number} onChange={e => setForm({ ...form, id_number: e.target.value })} style={inputStyle} />
+            <input placeholder="Position" value={form.position} onChange={e => setForm({ ...form, position: e.target.value })} style={inputStyle} />
+            <input placeholder="Contact Number" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} style={inputStyle} />
+            <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+            <input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} style={inputStyle} />
+            <input placeholder="UIF Number" value={form.uif_number} onChange={e => setForm({ ...form, uif_number: e.target.value })} style={inputStyle} />
+            <input placeholder="COIDA Number" value={form.coida_number} onChange={e => setForm({ ...form, coida_number: e.target.value })} style={inputStyle} />
+            <input placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={inputStyle} />
           </div>
-          <button style={s.btn('#16a34a')} onClick={addStaff} disabled={saving}>{saving ? 'Saving...' : 'Save Staff Member'}</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button style={btn('#16a34a')} onClick={saveStaff} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save Staff Member'}</button>
+            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+          </div>
         </div>
       )}
 
       {staff.map(member => (
-        <div key={member.id} style={{ ...s.card, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div key={member.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 16, color: '#1e293b', marginBottom: 2 }}>{member.name}</div>
             <div style={{ color: '#2d5080', fontWeight: 600, fontSize: 13, marginBottom: 8 }}>{member.position}</div>
@@ -373,7 +420,10 @@ function StaffPage() {
               {member.coida_number && <span>COIDA: {member.coida_number}</span>}
             </div>
           </div>
-          <button onClick={() => deleteStaff(member.id)} style={s.btn('#dc2626')}>Delete</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => openEdit(member)} style={editBtn}>✏️ Edit</button>
+            <button onClick={() => deleteStaff(member.id)} style={btn('#dc2626')}>Delete</button>
+          </div>
         </div>
       ))}
       {staff.length === 0 && <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8' }}>No staff records yet</div>}
@@ -386,6 +436,7 @@ function MembersPage() {
   const [members, setMembers] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [showBirthdays, setShowBirthdays] = useState(false)
+  const [editId, setEditId] = useState(null)
   const [form, setForm] = useState({ name: '', id_number: '', contact: '', email: '', birthday: '', membership_type: 'Full' })
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
@@ -397,11 +448,27 @@ function MembersPage() {
     if (data) setMembers(data)
   }
 
-  async function addMember() {
-    setSaving(true)
-    await supabase.from('members').insert([form])
+  function openAdd() {
+    setEditId(null)
     setForm({ name: '', id_number: '', contact: '', email: '', birthday: '', membership_type: 'Full' })
-    setShowForm(false); setSaving(false); fetchMembers()
+    setShowForm(true)
+  }
+
+  function openEdit(m) {
+    setEditId(m.id)
+    setForm({ name: m.name || '', id_number: m.id_number || '', contact: m.contact || '', email: m.email || '', birthday: m.birthday || '', membership_type: m.membership_type || 'Full' })
+    setShowForm(true)
+  }
+
+  async function saveMember() {
+    setSaving(true)
+    if (editId) {
+      await supabase.from('members').update(form).eq('id', editId)
+    } else {
+      await supabase.from('members').insert([form])
+    }
+    setForm({ name: '', id_number: '', contact: '', email: '', birthday: '', membership_type: 'Full' })
+    setShowForm(false); setEditId(null); setSaving(false); fetchMembers()
   }
 
   async function deleteMember(id) {
@@ -424,11 +491,6 @@ function MembersPage() {
     .sort((a, b) => a.daysUntil - b.daysUntil)
     .slice(0, 10)
 
-  const s = {
-    input: { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14 },
-    btn: (color) => ({ padding: '8px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
-  }
-
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -437,13 +499,13 @@ function MembersPage() {
           <div style={{ color: '#64748b' }}>{members.length} members registered</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={s.btn('#ec4899')} onClick={() => setShowBirthdays(!showBirthdays)}>🎂 Birthdays</button>
-          <button style={s.btn('#1e3a5f')} onClick={() => setShowForm(!showForm)}>+ Add Member</button>
+          <button style={btn('#ec4899')} onClick={() => setShowBirthdays(!showBirthdays)}>🎂 Birthdays</button>
+          <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add Member</button>
         </div>
       </div>
 
       {showBirthdays && (
-        <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 16 }}>
+        <div style={cardStyle}>
           <div style={{ fontWeight: 700, fontSize: 16, color: '#1e3a5f', marginBottom: 16 }}>🎂 Upcoming Birthdays</div>
           {upcomingBirthdays.map(m => (
             <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
@@ -457,23 +519,27 @@ function MembersPage() {
       )}
 
       {showForm && (
-        <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 16 }}>
+        <div style={cardStyle}>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Member' : '+ New Member'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }}>
-            <input placeholder="Full Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={s.input} />
-            <input placeholder="ID Number" value={form.id_number} onChange={e => setForm({ ...form, id_number: e.target.value })} style={s.input} />
-            <input placeholder="Contact Number" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} style={s.input} />
-            <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={s.input} />
-            <input type="date" placeholder="Birthday" value={form.birthday} onChange={e => setForm({ ...form, birthday: e.target.value })} style={s.input} />
-            <select value={form.membership_type} onChange={e => setForm({ ...form, membership_type: e.target.value })} style={s.input}>
+            <input placeholder="Full Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+            <input placeholder="ID Number" value={form.id_number} onChange={e => setForm({ ...form, id_number: e.target.value })} style={inputStyle} />
+            <input placeholder="Contact Number" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} style={inputStyle} />
+            <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+            <input type="date" value={form.birthday} onChange={e => setForm({ ...form, birthday: e.target.value })} style={inputStyle} />
+            <select value={form.membership_type} onChange={e => setForm({ ...form, membership_type: e.target.value })} style={inputStyle}>
               <option>Full</option><option>Social</option><option>Junior</option><option>Honorary</option>
             </select>
           </div>
-          <button style={s.btn('#16a34a')} onClick={addMember} disabled={saving}>{saving ? 'Saving...' : 'Save Member'}</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button style={btn('#16a34a')} onClick={saveMember} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update Member' : 'Save Member'}</button>
+            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+          </div>
         </div>
       )}
 
       <input placeholder="🔍 Search members..." value={search} onChange={e => setSearch(e.target.value)}
-        style={{ ...s.input, width: '100%', marginBottom: 16, boxSizing: 'border-box' }} />
+        style={{ ...inputStyle, width: '100%', marginBottom: 16, boxSizing: 'border-box' }} />
 
       <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -491,7 +557,12 @@ function MembersPage() {
                 <td style={{ padding: '12px 16px', color: '#64748b', fontSize: 13 }}>{m.email}</td>
                 <td style={{ padding: '12px 16px', color: '#64748b', fontSize: 13 }}>{m.birthday}</td>
                 <td style={{ padding: '12px 16px' }}><span style={{ background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: 12, fontSize: 12 }}>{m.membership_type}</span></td>
-                <td style={{ padding: '12px 16px' }}><button onClick={() => deleteMember(m.id)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}>🗑️</button></td>
+                <td style={{ padding: '12px 16px' }}>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => openEdit(m)} style={editBtn}>✏️</button>
+                    <button onClick={() => deleteMember(m.id)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}>🗑️</button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -506,6 +577,7 @@ function MembersPage() {
 function ProjectsPage() {
   const [projects, setProjects] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [editId, setEditId] = useState(null)
   const [form, setForm] = useState({ title: '', responsible: '', due_date: '', status: 'Not Started', notes: '' })
   const [saving, setSaving] = useState(false)
 
@@ -516,11 +588,27 @@ function ProjectsPage() {
     if (data) setProjects(data)
   }
 
-  async function addProject() {
-    setSaving(true)
-    await supabase.from('projects').insert([form])
+  function openAdd() {
+    setEditId(null)
     setForm({ title: '', responsible: '', due_date: '', status: 'Not Started', notes: '' })
-    setShowForm(false); setSaving(false); fetchProjects()
+    setShowForm(true)
+  }
+
+  function openEdit(p) {
+    setEditId(p.id)
+    setForm({ title: p.title || '', responsible: p.responsible || '', due_date: p.due_date || '', status: p.status || 'Not Started', notes: p.notes || '' })
+    setShowForm(true)
+  }
+
+  async function saveProject() {
+    setSaving(true)
+    if (editId) {
+      await supabase.from('projects').update(form).eq('id', editId)
+    } else {
+      await supabase.from('projects').insert([form])
+    }
+    setForm({ title: '', responsible: '', due_date: '', status: 'Not Started', notes: '' })
+    setShowForm(false); setEditId(null); setSaving(false); fetchProjects()
   }
 
   async function updateStatus(id, status) {
@@ -536,11 +624,6 @@ function ProjectsPage() {
   const statusColor = { 'Not Started': '#dc2626', 'In Progress': '#d97706', 'Completed': '#16a34a' }
   const statusEmoji = { 'Not Started': '🔴', 'In Progress': '🟡', 'Completed': '🟢' }
 
-  const s = {
-    input: { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14 },
-    btn: (color) => ({ padding: '8px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
-  }
-
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -548,21 +631,25 @@ function ProjectsPage() {
           <div style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f' }}>🚦 Project Progress</div>
           <div style={{ color: '#64748b' }}>Track projects with Red / Yellow / Green indicators</div>
         </div>
-        <button style={s.btn('#1e3a5f')} onClick={() => setShowForm(!showForm)}>+ Add Project</button>
+        <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add Project</button>
       </div>
 
       {showForm && (
-        <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 16 }}>
+        <div style={cardStyle}>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Project' : '+ New Project'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
-            <input placeholder="Project title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={s.input} />
-            <input placeholder="Responsible person" value={form.responsible} onChange={e => setForm({ ...form, responsible: e.target.value })} style={s.input} />
-            <input type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} style={s.input} />
-            <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={s.input}>
+            <input placeholder="Project title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inputStyle} />
+            <input placeholder="Responsible person" value={form.responsible} onChange={e => setForm({ ...form, responsible: e.target.value })} style={inputStyle} />
+            <input type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} style={inputStyle} />
+            <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
               <option>Not Started</option><option>In Progress</option><option>Completed</option>
             </select>
           </div>
-          <input placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...s.input, width: '100%', marginBottom: 12, boxSizing: 'border-box' }} />
-          <button style={s.btn('#16a34a')} onClick={addProject} disabled={saving}>{saving ? 'Saving...' : 'Save Project'}</button>
+          <input placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inputStyle, width: '100%', marginBottom: 12, boxSizing: 'border-box' }} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button style={btn('#16a34a')} onClick={saveProject} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update Project' : 'Save Project'}</button>
+            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+          </div>
         </div>
       )}
 
@@ -587,7 +674,12 @@ function ProjectsPage() {
                     <option>Not Started</option><option>In Progress</option><option>Completed</option>
                   </select>
                 </td>
-                <td style={{ padding: '12px 16px' }}><button onClick={() => deleteProject(p.id)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}>🗑️</button></td>
+                <td style={{ padding: '12px 16px' }}>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => openEdit(p)} style={editBtn}>✏️</button>
+                    <button onClick={() => deleteProject(p.id)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}>🗑️</button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -606,6 +698,7 @@ function PortalAdminPage() {
   const [docs, setDocs] = useState([])
   const [agm, setAgm] = useState([])
   const [newsletters, setNewsletters] = useState([])
+  const [editId, setEditId] = useState(null)
   const [contactForm, setContactForm] = useState({ name: '', role: '', phone: '', email: '', sort_order: 0 })
   const [eventForm, setEventForm] = useState({ title: '', event_date: '', type: 'Competition', description: '' })
   const [docForm, setDocForm] = useState({ name: '', category: 'White River', file_date: '', file_url: '' })
@@ -630,9 +723,21 @@ function PortalAdminPage() {
     if (!n.error) setNewsletters(n.data)
   }
 
+  function openEdit(formSetter, item, fields) {
+    setEditId(item.id)
+    const filled = {}
+    fields.forEach(f => { filled[f] = item[f] || '' })
+    formSetter(filled)
+  }
+
   async function save(table, form, reset) {
     setSaving(true)
-    await supabase.from(table).insert([form])
+    if (editId) {
+      await supabase.from(table).update(form).eq('id', editId)
+      setEditId(null)
+    } else {
+      await supabase.from(table).insert([form])
+    }
     reset(); setSaving(false); fetchAll()
   }
 
@@ -643,9 +748,8 @@ function PortalAdminPage() {
 
   const s = {
     input: { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' },
-    btn: (color) => ({ padding: '8px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
     tabBtn: (active) => ({ padding: '8px 16px', background: active ? '#1e3a5f' : 'white', color: active ? 'white' : '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
-    card: { background: '#f8fafc', borderRadius: 12, padding: 20, marginBottom: 12 },
+    formCard: { background: '#f8fafc', borderRadius: 12, padding: 20, marginBottom: 12 },
     row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' },
   }
 
@@ -663,36 +767,42 @@ function PortalAdminPage() {
       <div style={{ color: '#64748b', marginBottom: 24 }}>Manage all public-facing content</div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-        {tabs.map(t => <button key={t.id} style={s.tabBtn(tab === t.id)} onClick={() => setTab(t.id)}>{t.label}</button>)}
+        {tabs.map(t => <button key={t.id} style={s.tabBtn(tab === t.id)} onClick={() => { setTab(t.id); setEditId(null) }}>{t.label}</button>)}
       </div>
 
-      {/* CONTACTS ADMIN */}
+      {/* CONTACTS */}
       {tab === 'contacts' && (
         <div>
-          <div style={s.card}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>Add Committee Contact</div>
+          <div style={s.formCard}>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Contact' : 'Add Committee Contact'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 12 }}>
               <input placeholder="Name" value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })} style={s.input} />
               <input placeholder="Role / Position" value={contactForm.role} onChange={e => setContactForm({ ...contactForm, role: e.target.value })} style={s.input} />
               <input placeholder="Phone" value={contactForm.phone} onChange={e => setContactForm({ ...contactForm, phone: e.target.value })} style={s.input} />
               <input placeholder="Email" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} style={s.input} />
             </div>
-            <button style={s.btn('#16a34a')} onClick={() => save('portal_contacts', contactForm, () => setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }))} disabled={saving}>{saving ? 'Saving...' : 'Add Contact'}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={btn('#16a34a')} onClick={() => save('portal_contacts', contactForm, () => { setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }) })} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Contact'}</button>
+              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }) }}>Cancel</button>}
+            </div>
           </div>
           {contacts.map(c => (
             <div key={c.id} style={s.row}>
               <div><span style={{ fontWeight: 600 }}>{c.name}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {c.role} · {c.phone} · {c.email}</span></div>
-              <button style={s.btn('#dc2626')} onClick={() => del('portal_contacts', c.id)}>Delete</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={editBtn} onClick={() => openEdit(setContactForm, c, ['name', 'role', 'phone', 'email', 'sort_order'])}>✏️ Edit</button>
+                <button style={btn('#dc2626')} onClick={() => del('portal_contacts', c.id)}>Delete</button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* EVENTS ADMIN */}
+      {/* EVENTS */}
       {tab === 'events' && (
         <div>
-          <div style={s.card}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>Add Public Event</div>
+          <div style={s.formCard}>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Event' : 'Add Public Event'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
               <input placeholder="Event title" value={eventForm.title} onChange={e => setEventForm({ ...eventForm, title: e.target.value })} style={s.input} />
               <input type="date" value={eventForm.event_date} onChange={e => setEventForm({ ...eventForm, event_date: e.target.value })} style={s.input} />
@@ -701,22 +811,28 @@ function PortalAdminPage() {
               </select>
             </div>
             <input placeholder="Description" value={eventForm.description} onChange={e => setEventForm({ ...eventForm, description: e.target.value })} style={{ ...s.input, marginBottom: 12 }} />
-            <button style={s.btn('#16a34a')} onClick={() => save('portal_events', eventForm, () => setEventForm({ title: '', event_date: '', type: 'Competition', description: '' }))} disabled={saving}>{saving ? 'Saving...' : 'Add Event'}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={btn('#16a34a')} onClick={() => save('portal_events', eventForm, () => setEventForm({ title: '', event_date: '', type: 'Competition', description: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Event'}</button>
+              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setEventForm({ title: '', event_date: '', type: 'Competition', description: '' }) }}>Cancel</button>}
+            </div>
           </div>
           {events.map(e => (
             <div key={e.id} style={s.row}>
               <div><span style={{ fontWeight: 600 }}>{e.title}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {e.event_date} · {e.type}</span></div>
-              <button style={s.btn('#dc2626')} onClick={() => del('portal_events', e.id)}>Delete</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={editBtn} onClick={() => openEdit(setEventForm, e, ['title', 'event_date', 'type', 'description'])}>✏️ Edit</button>
+                <button style={btn('#dc2626')} onClick={() => del('portal_events', e.id)}>Delete</button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* DOCUMENTS ADMIN */}
+      {/* DOCUMENTS */}
       {tab === 'documents' && (
         <div>
-          <div style={s.card}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>Add Document</div>
+          <div style={s.formCard}>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Document' : 'Add Document'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
               <input placeholder="Document name" value={docForm.name} onChange={e => setDocForm({ ...docForm, name: e.target.value })} style={s.input} />
               <select value={docForm.category} onChange={e => setDocForm({ ...docForm, category: e.target.value })} style={s.input}>
@@ -725,22 +841,28 @@ function PortalAdminPage() {
               <input type="date" value={docForm.file_date} onChange={e => setDocForm({ ...docForm, file_date: e.target.value })} style={s.input} />
             </div>
             <input placeholder="File URL (Google Drive link, etc)" value={docForm.file_url} onChange={e => setDocForm({ ...docForm, file_url: e.target.value })} style={{ ...s.input, marginBottom: 12 }} />
-            <button style={s.btn('#16a34a')} onClick={() => save('portal_documents', docForm, () => setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : 'Add Document'}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={btn('#16a34a')} onClick={() => save('portal_documents', docForm, () => setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Document'}</button>
+              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }) }}>Cancel</button>}
+            </div>
           </div>
           {docs.map(d => (
             <div key={d.id} style={s.row}>
               <div><span style={{ fontWeight: 600 }}>{d.name}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {d.category} · {d.file_date}</span></div>
-              <button style={s.btn('#dc2626')} onClick={() => del('portal_documents', d.id)}>Delete</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={editBtn} onClick={() => openEdit(setDocForm, d, ['name', 'category', 'file_date', 'file_url'])}>✏️ Edit</button>
+                <button style={btn('#dc2626')} onClick={() => del('portal_documents', d.id)}>Delete</button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* AGM ADMIN */}
+      {/* AGM */}
       {tab === 'agm' && (
         <div>
-          <div style={s.card}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>Add AGM Document</div>
+          <div style={s.formCard}>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit AGM Document' : 'Add AGM Document'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
               <input placeholder="Document name" value={agmForm.name} onChange={e => setAgmForm({ ...agmForm, name: e.target.value })} style={s.input} />
               <select value={agmForm.type} onChange={e => setAgmForm({ ...agmForm, type: e.target.value })} style={s.input}>
@@ -749,33 +871,45 @@ function PortalAdminPage() {
               <input placeholder="Year (e.g. 2025)" value={agmForm.year} onChange={e => setAgmForm({ ...agmForm, year: e.target.value })} style={s.input} />
             </div>
             <input placeholder="File URL" value={agmForm.file_url} onChange={e => setAgmForm({ ...agmForm, file_url: e.target.value })} style={{ ...s.input, marginBottom: 12 }} />
-            <button style={s.btn('#16a34a')} onClick={() => save('portal_agm', agmForm, () => setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : 'Add Document'}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={btn('#16a34a')} onClick={() => save('portal_agm', agmForm, () => setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Document'}</button>
+              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }) }}>Cancel</button>}
+            </div>
           </div>
           {agm.map(a => (
             <div key={a.id} style={s.row}>
               <div><span style={{ fontWeight: 600 }}>{a.name}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {a.type} · {a.year}</span></div>
-              <button style={s.btn('#dc2626')} onClick={() => del('portal_agm', a.id)}>Delete</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={editBtn} onClick={() => openEdit(setAgmForm, a, ['name', 'type', 'year', 'file_url'])}>✏️ Edit</button>
+                <button style={btn('#dc2626')} onClick={() => del('portal_agm', a.id)}>Delete</button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* NEWSLETTER ADMIN */}
+      {/* NEWSLETTER */}
       {tab === 'newsletter' && (
         <div>
-          <div style={s.card}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>Add Newsletter</div>
+          <div style={s.formCard}>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Newsletter' : 'Add Newsletter'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
               <input placeholder="Newsletter title" value={nlForm.title} onChange={e => setNlForm({ ...nlForm, title: e.target.value })} style={s.input} />
               <input type="date" value={nlForm.published_date} onChange={e => setNlForm({ ...nlForm, published_date: e.target.value })} style={s.input} />
             </div>
             <input placeholder="File URL" value={nlForm.file_url} onChange={e => setNlForm({ ...nlForm, file_url: e.target.value })} style={{ ...s.input, marginBottom: 12 }} />
-            <button style={s.btn('#16a34a')} onClick={() => save('portal_newsletter', nlForm, () => setNlForm({ title: '', published_date: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : 'Add Newsletter'}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={btn('#16a34a')} onClick={() => save('portal_newsletter', nlForm, () => setNlForm({ title: '', published_date: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Newsletter'}</button>
+              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setNlForm({ title: '', published_date: '', file_url: '' }) }}>Cancel</button>}
+            </div>
           </div>
           {newsletters.map(n => (
             <div key={n.id} style={s.row}>
               <div><span style={{ fontWeight: 600 }}>{n.title}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {n.published_date}</span></div>
-              <button style={s.btn('#dc2626')} onClick={() => del('portal_newsletter', n.id)}>Delete</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={editBtn} onClick={() => openEdit(setNlForm, n, ['title', 'published_date', 'file_url'])}>✏️ Edit</button>
+                <button style={btn('#dc2626')} onClick={() => del('portal_newsletter', n.id)}>Delete</button>
+              </div>
             </div>
           ))}
         </div>
