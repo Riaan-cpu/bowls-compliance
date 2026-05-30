@@ -3,7 +3,6 @@ import Portal from './pages/Portal'
 import ComplianceApp from './pages/ComplianceApp'
 import Login from './pages/Login'
 import Committee from './pages/Committee'
-import MemberPortal from './pages/MemberPortal'
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
@@ -55,20 +54,13 @@ export default function App() {
       <Route path="/" element={<Portal />} />
       <Route path="/login" element={
         session
-          ? (isAdmin ? <Navigate to="/committee" /> : <Navigate to="/member" />)
+          ? (isAdmin ? <Navigate to="/committee" /> : <Navigate to="/" />)
           : <Login />
-      } />
-      <Route path="/member" element={
-        !session
-          ? <Navigate to="/login" />
-          : isAdmin
-          ? <Navigate to="/committee" />
-          : <MemberPortal session={session} />
       } />
       <Route path="/committee/*" element={
         session && isAdmin
           ? <Committee session={session} role={role} />
-          : session ? <Navigate to="/member" /> : <Navigate to="/login" />
+          : session ? <Navigate to="/" /> : <Navigate to="/login" />
       } />
       <Route path="/compliance/*" element={
         session && isAdmin ? <ComplianceApp session={session} /> : <Navigate to="/login" />
