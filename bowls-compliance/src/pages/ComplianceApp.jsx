@@ -64,38 +64,11 @@ export default function ComplianceApp({ session }) {
     setLoading(false)
   }
 
-  async function deleteRow(table, id) {
-    await supabase.from(table).delete().eq('id', id)
-    fetchAll()
-  }
-
-  async function addCompliance() {
-    setSaving(true)
-    await supabase.from('compliance_items').insert([complianceForm])
-    setComplianceForm({ name: '', due_date: '', status: 'Compliant', owner: '' })
-    setShowForm(false); setSaving(false); fetchAll()
-  }
-
-  async function addLicence() {
-    setSaving(true)
-    await supabase.from('licences').insert([licenceForm])
-    setLicenceForm({ name: '', licence_number: '', issued_date: '', expiry_date: '', status: 'Compliant', authority: '' })
-    setShowForm(false); setSaving(false); fetchAll()
-  }
-
-  async function addGovernance() {
-    setSaving(true)
-    await supabase.from('governance').insert([govForm])
-    setGovForm({ name: '', frequency: '', last_done: '', next_due: '', status: 'Compliant' })
-    setShowForm(false); setSaving(false); fetchAll()
-  }
-
-  async function addRisk() {
-    setSaving(true)
-    await supabase.from('risk_register').insert([riskForm])
-    setRiskForm({ risk: '', category: '', likelihood: 'Low', impact: 'Low', mitigation: '' })
-    setShowForm(false); setSaving(false); fetchAll()
-  }
+  async function deleteRow(table, id) { await supabase.from(table).delete().eq('id', id); fetchAll() }
+  async function addCompliance() { setSaving(true); await supabase.from('compliance_items').insert([complianceForm]); setComplianceForm({ name: '', due_date: '', status: 'Compliant', owner: '' }); setShowForm(false); setSaving(false); fetchAll() }
+  async function addLicence() { setSaving(true); await supabase.from('licences').insert([licenceForm]); setLicenceForm({ name: '', licence_number: '', issued_date: '', expiry_date: '', status: 'Compliant', authority: '' }); setShowForm(false); setSaving(false); fetchAll() }
+  async function addGovernance() { setSaving(true); await supabase.from('governance').insert([govForm]); setGovForm({ name: '', frequency: '', last_done: '', next_due: '', status: 'Compliant' }); setShowForm(false); setSaving(false); fetchAll() }
+  async function addRisk() { setSaving(true); await supabase.from('risk_register').insert([riskForm]); setRiskForm({ risk: '', category: '', likelihood: 'Low', impact: 'Low', mitigation: '' }); setShowForm(false); setSaving(false); fetchAll() }
 
   const counts = {
     total: complianceItems.length,
@@ -104,24 +77,26 @@ export default function ComplianceApp({ session }) {
     overdue: complianceItems.filter(i => i.status === 'Overdue').length,
   }
 
-  const inputStyle = { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14 }
+  const inp = { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14 }
+  const addBtn = { padding: '10px 20px', background: '#1a1a1a', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }
+  const saveBtn = { padding: '8px 24px', background: '#333333', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', fontFamily: 'Segoe UI, sans-serif', background: '#f1f5f9' }}>
+    <div style={{ display: 'flex', height: '100vh', fontFamily: 'Segoe UI, sans-serif', background: '#f5f5f5' }}>
       {/* Sidebar */}
-      <div style={{ width: sidebarOpen ? 220 : 60, background: '#1e3a5f', color: 'white', transition: 'width 0.2s', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '20px 16px', borderBottom: '1px solid #2d5080', display: 'flex', alignItems: 'center', gap: 10 }}>
-          {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.3 }}>Compliance<br /><span style={{ opacity: 0.7, fontSize: 11 }}>White River BC</span></span>}
+      <div style={{ width: sidebarOpen ? 220 : 60, background: '#1a1a1a', color: 'white', transition: 'width 0.2s', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '20px 16px', borderBottom: '1px solid #333333', display: 'flex', alignItems: 'center', gap: 10 }}>
+          {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.3 }}>Compliance<br /><span style={{ opacity: 0.6, fontSize: 11 }}>White River BC</span></span>}
           <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'white', fontSize: 18, cursor: 'pointer' }}>☰</button>
         </div>
         {modules.map(m => (
           <div key={m.id} onClick={() => { setActive(m.id); setShowForm(false) }}
-            style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: active === m.id ? '#2d5080' : 'transparent', borderLeft: active === m.id ? '3px solid #60a5fa' : '3px solid transparent' }}>
+            style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: active === m.id ? '#333333' : 'transparent', borderLeft: active === m.id ? '3px solid #ffffff' : '3px solid transparent' }}>
             <span style={{ fontSize: 18 }}>{m.icon}</span>
             {sidebarOpen && <span style={{ fontSize: 14 }}>{m.label}</span>}
           </div>
         ))}
-        <div style={{ marginTop: 'auto', padding: 16, borderTop: '1px solid #2d5080' }}>
+        <div style={{ marginTop: 'auto', padding: 16, borderTop: '1px solid #333333' }}>
           <button onClick={() => navigate('/committee')} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 13, width: sidebarOpen ? '100%' : 'auto' }}>
             {sidebarOpen ? '← Committee' : '←'}
           </button>
@@ -131,18 +106,16 @@ export default function ComplianceApp({ session }) {
       {/* Main */}
       <div style={{ flex: 1, overflow: 'auto', padding: 32 }}>
 
-        {/* DASHBOARD */}
         {active === 'dashboard' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
               <div>
-                <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>Compliance Dashboard</h1>
+                <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Compliance Dashboard</h1>
                 <p style={{ color: '#64748b' }}>Live overview of all club compliance obligations</p>
               </div>
-              <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#1e3a5f', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+ Add Item</button>
+              <button onClick={() => setShowForm(!showForm)} style={addBtn}>+ Add Item</button>
             </div>
 
-            {/* Overdue alerts */}
             {complianceItems.filter(i => i.status === 'Overdue').length > 0 && (
               <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 12, padding: '12px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>🚨</span>
@@ -158,23 +131,21 @@ export default function ComplianceApp({ session }) {
 
             {showForm && (
               <div style={{ background: 'white', borderRadius: 12, padding: 24, marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-                <h3 style={{ marginBottom: 16, color: '#1e3a5f' }}>New Compliance Item</h3>
+                <h3 style={{ marginBottom: 16, color: '#1a1a1a' }}>New Compliance Item</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
-                  <input placeholder="Obligation name" value={complianceForm.name} onChange={e => setComplianceForm({ ...complianceForm, name: e.target.value })} style={inputStyle} />
-                  <input type="date" value={complianceForm.due_date} onChange={e => setComplianceForm({ ...complianceForm, due_date: e.target.value })} style={inputStyle} />
-                  <select value={complianceForm.status} onChange={e => setComplianceForm({ ...complianceForm, status: e.target.value })} style={inputStyle}>
+                  <input placeholder="Obligation name" value={complianceForm.name} onChange={e => setComplianceForm({ ...complianceForm, name: e.target.value })} style={inp} />
+                  <input type="date" value={complianceForm.due_date} onChange={e => setComplianceForm({ ...complianceForm, due_date: e.target.value })} style={inp} />
+                  <select value={complianceForm.status} onChange={e => setComplianceForm({ ...complianceForm, status: e.target.value })} style={inp}>
                     <option>Compliant</option><option>Due Soon</option><option>Overdue</option>
                   </select>
-                  <input placeholder="Owner" value={complianceForm.owner} onChange={e => setComplianceForm({ ...complianceForm, owner: e.target.value })} style={inputStyle} />
+                  <input placeholder="Owner" value={complianceForm.owner} onChange={e => setComplianceForm({ ...complianceForm, owner: e.target.value })} style={inp} />
                 </div>
-                <button onClick={addCompliance} disabled={saving} style={{ padding: '8px 24px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
-                  {saving ? 'Saving...' : 'Save Item'}
-                </button>
+                <button onClick={addCompliance} disabled={saving} style={saveBtn}>{saving ? 'Saving...' : 'Save Item'}</button>
               </div>
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
-              {[{ label: 'Total Items', value: counts.total, color: '#1e3a5f' }, { label: 'Compliant', value: counts.compliant, color: '#16a34a' }, { label: 'Due Soon', value: counts.dueSoon, color: '#d97706' }, { label: 'Overdue', value: counts.overdue, color: '#dc2626' }].map(c => (
+              {[{ label: 'Total Items', value: counts.total, color: '#1a1a1a' }, { label: 'Compliant', value: counts.compliant, color: '#16a34a' }, { label: 'Due Soon', value: counts.dueSoon, color: '#d97706' }, { label: 'Overdue', value: counts.overdue, color: '#dc2626' }].map(c => (
                 <div key={c.label} style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
                   <div style={{ fontSize: 32, fontWeight: 700, color: c.color }}>{c.value}</div>
                   <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{c.label}</div>
@@ -183,10 +154,10 @@ export default function ComplianceApp({ session }) {
             </div>
 
             <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', fontWeight: 600, color: '#1e3a5f' }}>All Compliance Items</div>
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', fontWeight: 600, color: '#1a1a1a' }}>All Compliance Items</div>
               {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>Loading...</div> : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead><tr style={{ background: '#f8fafc' }}>
+                  <thead><tr style={{ background: '#f5f5f5' }}>
                     {['Obligation', 'Due Date', 'Status', 'Owner', ''].map(h => <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>)}
                   </tr></thead>
                   <tbody>
@@ -206,26 +177,25 @@ export default function ComplianceApp({ session }) {
           </div>
         )}
 
-        {/* LICENCES */}
         {active === 'licences' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-              <div><h1 style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>Licence Tracker</h1><p style={{ color: '#64748b' }}>Monitor all club licence renewals</p></div>
-              <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#1e3a5f', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+ Add Licence</button>
+              <div><h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Licence Tracker</h1><p style={{ color: '#64748b' }}>Monitor all club licence renewals</p></div>
+              <button onClick={() => setShowForm(!showForm)} style={addBtn}>+ Add Licence</button>
             </div>
             {showForm && (
               <div style={{ background: 'white', borderRadius: 12, padding: 24, marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }}>
-                  <input placeholder="Licence name" value={licenceForm.name} onChange={e => setLicenceForm({ ...licenceForm, name: e.target.value })} style={inputStyle} />
-                  <input placeholder="Licence number" value={licenceForm.licence_number} onChange={e => setLicenceForm({ ...licenceForm, licence_number: e.target.value })} style={inputStyle} />
-                  <input placeholder="Authority" value={licenceForm.authority} onChange={e => setLicenceForm({ ...licenceForm, authority: e.target.value })} style={inputStyle} />
-                  <input type="date" value={licenceForm.issued_date} onChange={e => setLicenceForm({ ...licenceForm, issued_date: e.target.value })} style={inputStyle} />
-                  <input type="date" value={licenceForm.expiry_date} onChange={e => setLicenceForm({ ...licenceForm, expiry_date: e.target.value })} style={inputStyle} />
-                  <select value={licenceForm.status} onChange={e => setLicenceForm({ ...licenceForm, status: e.target.value })} style={inputStyle}>
+                  <input placeholder="Licence name" value={licenceForm.name} onChange={e => setLicenceForm({ ...licenceForm, name: e.target.value })} style={inp} />
+                  <input placeholder="Licence number" value={licenceForm.licence_number} onChange={e => setLicenceForm({ ...licenceForm, licence_number: e.target.value })} style={inp} />
+                  <input placeholder="Authority" value={licenceForm.authority} onChange={e => setLicenceForm({ ...licenceForm, authority: e.target.value })} style={inp} />
+                  <input type="date" value={licenceForm.issued_date} onChange={e => setLicenceForm({ ...licenceForm, issued_date: e.target.value })} style={inp} />
+                  <input type="date" value={licenceForm.expiry_date} onChange={e => setLicenceForm({ ...licenceForm, expiry_date: e.target.value })} style={inp} />
+                  <select value={licenceForm.status} onChange={e => setLicenceForm({ ...licenceForm, status: e.target.value })} style={inp}>
                     <option>Compliant</option><option>Due Soon</option><option>Overdue</option>
                   </select>
                 </div>
-                <button onClick={addLicence} disabled={saving} style={{ padding: '8px 24px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>{saving ? 'Saving...' : 'Save'}</button>
+                <button onClick={addLicence} disabled={saving} style={saveBtn}>{saving ? 'Saving...' : 'Save'}</button>
               </div>
             )}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
@@ -241,17 +211,16 @@ export default function ComplianceApp({ session }) {
                     <div><b>Expires:</b> {lic.expiry_date}</div>
                     <div><b>Authority:</b> {lic.authority}</div>
                   </div>
-                  <button onClick={() => deleteRow('licences', lic.id)} style={{ marginTop: 12, width: '100%', padding: '8px 0', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
+                  <button onClick={() => deleteRow('licences', lic.id)} style={{ marginTop: 12, width: '100%', padding: '8px 0', background: '#f5f5f5', color: '#dc2626', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* CIPC */}
         {active === 'cipc' && (
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>CIPC Management</h1>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>CIPC Management</h1>
             <p style={{ color: '#64748b', marginBottom: 28 }}>Annual return filings and registration status</p>
             {cipc.map(c => (
               <div key={c.id} style={{ background: 'white', borderRadius: 12, padding: 28, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', maxWidth: 600 }}>
@@ -266,30 +235,29 @@ export default function ComplianceApp({ session }) {
           </div>
         )}
 
-        {/* GOVERNANCE */}
         {active === 'governance' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-              <div><h1 style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>Governance Obligations</h1><p style={{ color: '#64748b' }}>Board and committee requirements</p></div>
-              <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#1e3a5f', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+ Add</button>
+              <div><h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Governance Obligations</h1><p style={{ color: '#64748b' }}>Board and committee requirements</p></div>
+              <button onClick={() => setShowForm(!showForm)} style={addBtn}>+ Add</button>
             </div>
             {showForm && (
               <div style={{ background: 'white', borderRadius: 12, padding: 24, marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 16 }}>
-                  <input placeholder="Obligation" value={govForm.name} onChange={e => setGovForm({ ...govForm, name: e.target.value })} style={inputStyle} />
-                  <input placeholder="Frequency" value={govForm.frequency} onChange={e => setGovForm({ ...govForm, frequency: e.target.value })} style={inputStyle} />
-                  <input type="date" value={govForm.last_done} onChange={e => setGovForm({ ...govForm, last_done: e.target.value })} style={inputStyle} />
-                  <input type="date" value={govForm.next_due} onChange={e => setGovForm({ ...govForm, next_due: e.target.value })} style={inputStyle} />
-                  <select value={govForm.status} onChange={e => setGovForm({ ...govForm, status: e.target.value })} style={inputStyle}>
+                  <input placeholder="Obligation" value={govForm.name} onChange={e => setGovForm({ ...govForm, name: e.target.value })} style={inp} />
+                  <input placeholder="Frequency" value={govForm.frequency} onChange={e => setGovForm({ ...govForm, frequency: e.target.value })} style={inp} />
+                  <input type="date" value={govForm.last_done} onChange={e => setGovForm({ ...govForm, last_done: e.target.value })} style={inp} />
+                  <input type="date" value={govForm.next_due} onChange={e => setGovForm({ ...govForm, next_due: e.target.value })} style={inp} />
+                  <select value={govForm.status} onChange={e => setGovForm({ ...govForm, status: e.target.value })} style={inp}>
                     <option>Compliant</option><option>Due Soon</option><option>Overdue</option>
                   </select>
                 </div>
-                <button onClick={addGovernance} disabled={saving} style={{ padding: '8px 24px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>{saving ? 'Saving...' : 'Save'}</button>
+                <button onClick={addGovernance} disabled={saving} style={saveBtn}>{saving ? 'Saving...' : 'Save'}</button>
               </div>
             )}
             <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr style={{ background: '#f8fafc' }}>{['Obligation', 'Frequency', 'Last Done', 'Next Due', 'Status', ''].map(h => <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>)}</tr></thead>
+                <thead><tr style={{ background: '#f5f5f5' }}>{['Obligation', 'Frequency', 'Last Done', 'Next Due', 'Status', ''].map(h => <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>)}</tr></thead>
                 <tbody>{governance.map(item => (
                   <tr key={item.id} style={{ borderTop: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '14px 20px', fontWeight: 500 }}>{item.name}</td>
@@ -305,28 +273,27 @@ export default function ComplianceApp({ session }) {
           </div>
         )}
 
-        {/* RISK */}
         {active === 'risk' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-              <div><h1 style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>Risk Register</h1><p style={{ color: '#64748b' }}>Compliance risks before they escalate</p></div>
-              <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#1e3a5f', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+ Add Risk</button>
+              <div><h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Risk Register</h1><p style={{ color: '#64748b' }}>Compliance risks before they escalate</p></div>
+              <button onClick={() => setShowForm(!showForm)} style={addBtn}>+ Add Risk</button>
             </div>
             {showForm && (
               <div style={{ background: 'white', borderRadius: 12, padding: 24, marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 2fr', gap: 12, marginBottom: 16 }}>
-                  <input placeholder="Risk" value={riskForm.risk} onChange={e => setRiskForm({ ...riskForm, risk: e.target.value })} style={inputStyle} />
-                  <input placeholder="Category" value={riskForm.category} onChange={e => setRiskForm({ ...riskForm, category: e.target.value })} style={inputStyle} />
-                  <select value={riskForm.likelihood} onChange={e => setRiskForm({ ...riskForm, likelihood: e.target.value })} style={inputStyle}><option>Low</option><option>Medium</option><option>High</option></select>
-                  <select value={riskForm.impact} onChange={e => setRiskForm({ ...riskForm, impact: e.target.value })} style={inputStyle}><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
-                  <input placeholder="Mitigation" value={riskForm.mitigation} onChange={e => setRiskForm({ ...riskForm, mitigation: e.target.value })} style={inputStyle} />
+                  <input placeholder="Risk" value={riskForm.risk} onChange={e => setRiskForm({ ...riskForm, risk: e.target.value })} style={inp} />
+                  <input placeholder="Category" value={riskForm.category} onChange={e => setRiskForm({ ...riskForm, category: e.target.value })} style={inp} />
+                  <select value={riskForm.likelihood} onChange={e => setRiskForm({ ...riskForm, likelihood: e.target.value })} style={inp}><option>Low</option><option>Medium</option><option>High</option></select>
+                  <select value={riskForm.impact} onChange={e => setRiskForm({ ...riskForm, impact: e.target.value })} style={inp}><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
+                  <input placeholder="Mitigation" value={riskForm.mitigation} onChange={e => setRiskForm({ ...riskForm, mitigation: e.target.value })} style={inp} />
                 </div>
-                <button onClick={addRisk} disabled={saving} style={{ padding: '8px 24px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>{saving ? 'Saving...' : 'Save'}</button>
+                <button onClick={addRisk} disabled={saving} style={saveBtn}>{saving ? 'Saving...' : 'Save'}</button>
               </div>
             )}
             <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr style={{ background: '#f8fafc' }}>{['Risk', 'Category', 'Likelihood', 'Impact', 'Mitigation', ''].map(h => <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>)}</tr></thead>
+                <thead><tr style={{ background: '#f5f5f5' }}>{['Risk', 'Category', 'Likelihood', 'Impact', 'Mitigation', ''].map(h => <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>)}</tr></thead>
                 <tbody>{risks.map(r => (
                   <tr key={r.id} style={{ borderTop: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '14px 20px', fontWeight: 500 }}>{r.risk}</td>
@@ -342,10 +309,9 @@ export default function ComplianceApp({ session }) {
           </div>
         )}
 
-        {/* DOCUMENTS */}
         {active === 'documents' && (
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>Document Repository</h1>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Document Repository</h1>
             <p style={{ color: '#64748b', marginBottom: 28 }}>Compliance documents</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               {documents.map(doc => (
@@ -353,7 +319,7 @@ export default function ComplianceApp({ session }) {
                   <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
                   <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{doc.name}</div>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>{doc.type} · {doc.file_date} · {doc.size}</div>
-                  <button onClick={() => deleteRow('documents', doc.id)} style={{ width: '100%', padding: '6px 0', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
+                  <button onClick={() => deleteRow('documents', doc.id)} style={{ width: '100%', padding: '6px 0', background: '#f5f5f5', color: '#dc2626', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
                 </div>
               ))}
             </div>
