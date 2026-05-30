@@ -9,20 +9,23 @@ import { supabase } from './supabase'
 
 export default function App() {
   const [session, setSession] = useState(undefined)
-  const [role, setRole] = useState(null)        // ← null until known
+  const [role, setRole] = useState('member')
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      if (session) await fetchRole(session.user.id)  // ← await this
-      setReady(true)                                  // ← only now mark ready
+      if (session) {
+        fetchRole(session.user.id)
+      } else {
+        setReady(true)
+      }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (session) await fetchRole(session.user.id)
-      else { setRole(null); setReady(true) }
+      if (session) fetchRole(session.user.id)
+      else { setRole('member'); setReady(true) }
     })
 
     return () => subscription.unsubscribe()
@@ -35,14 +38,16 @@ export default function App() {
         .select('role')
         .eq('user_id', userId)
         .limit(1)
-      setRole(data && data.length > 0 ? data[0].role : 'member')
+      if (data && data.length > 0) setRole(data[0].role)
+      else setRole('member')
     } catch {
       setRole('member')
+    } finally {
+      setReady(true)
     }
   }
 
-  // Show loading until session AND role are both resolved
-  if (!ready || (session && role === null)) return (
+  if (!ready) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Segoe UI', color: '#1e3a5f', fontSize: 18 }}>
       Loading...
     </div>
