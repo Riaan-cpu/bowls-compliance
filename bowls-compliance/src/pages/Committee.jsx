@@ -40,22 +40,22 @@ export default function Committee({ session }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', fontFamily: 'Segoe UI, sans-serif', background: '#f1f5f9' }}>
+    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', fontFamily: 'Segoe UI, sans-serif', background: '#f5f5f5' }}>
 
       {/* Desktop Sidebar */}
       {!isMobile && (
-        <div style={{ width: sidebarOpen ? 220 : 60, background: '#1e3a5f', color: 'white', transition: 'width 0.2s', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-          <div style={{ padding: '20px 16px', borderBottom: '1px solid #2d5080', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ width: sidebarOpen ? 220 : 60, background: '#1a1a1a', color: 'white', transition: 'width 0.2s', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+          <div style={{ padding: '20px 16px', borderBottom: '1px solid #333333', display: 'flex', alignItems: 'center', gap: 10 }}>
             {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.3 }}>White River BC<br /><span style={{ opacity: 0.7, fontSize: 11 }}>Committee Portal</span></span>}
             <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'white', fontSize: 18, cursor: 'pointer' }}>☰</button>
           </div>
           {modules.map(m => (
-            <div key={m.id} onClick={() => go(m.id)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: active === m.id ? '#2d5080' : 'transparent', borderLeft: active === m.id ? '3px solid #60a5fa' : '3px solid transparent' }}>
+            <div key={m.id} onClick={() => go(m.id)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: active === m.id ? '#333333' : 'transparent', borderLeft: active === m.id ? '3px solid #ffffff' : '3px solid transparent' }}>
               <span style={{ fontSize: 18 }}>{m.icon}</span>
               {sidebarOpen && <span style={{ fontSize: 14 }}>{m.label}</span>}
             </div>
           ))}
-          <div style={{ marginTop: 'auto', padding: 16, borderTop: '1px solid #2d5080' }}>
+          <div style={{ marginTop: 'auto', padding: 16, borderTop: '1px solid #333333' }}>
             {sidebarOpen && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>{session.user.email}</div>}
             <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 13, width: sidebarOpen ? '100%' : 'auto' }}>
               {sidebarOpen ? '← Sign Out' : '←'}
@@ -70,18 +70,18 @@ export default function Committee({ session }) {
         {/* Mobile top bar */}
         {isMobile && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#1e3a5f' }}>⚪ White River BC</div>
-            <button onClick={handleLogout} style={{ background: '#1e3a5f', border: 'none', color: 'white', padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
+            <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a1a' }}>⚪ White River BC</div>
+            <button onClick={handleLogout} style={{ background: '#1a1a1a', border: 'none', color: 'white', padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
           </div>
         )}
 
         {active === 'dashboard' && (
           <div>
-            <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>Committee Dashboard</div>
+            <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Committee Dashboard</div>
             <div style={{ color: '#64748b', marginBottom: 24, fontSize: 13 }}>Welcome back, {session.user.email}</div>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? 12 : 16 }}>
               {[
-                { label: 'Meetings', icon: '📝', color: '#1e3a5f', id: 'meetings' },
+                { label: 'Meetings', icon: '📝', color: '#1a1a1a', id: 'meetings' },
                 { label: 'Events & Tasks', icon: '📅', color: '#16a34a', id: 'events' },
                 { label: 'Staff Records', icon: '👤', color: '#d97706', id: 'staff' },
                 { label: 'Members DB', icon: '👥', color: '#7c3aed', id: 'members' },
@@ -108,9 +108,9 @@ export default function Committee({ session }) {
 
       {/* Mobile Bottom Nav */}
       {isMobile && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#1e3a5f', display: 'flex', overflowX: 'auto', zIndex: 100, borderTop: '1px solid #2d5080' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#1a1a1a', display: 'flex', overflowX: 'auto', zIndex: 100, borderTop: '1px solid #333333' }}>
           {modules.map(m => (
-            <div key={m.id} onClick={() => go(m.id)} style={{ flex: '0 0 auto', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, cursor: 'pointer', background: active === m.id ? '#2d5080' : 'transparent', borderBottom: active === m.id ? '3px solid #60a5fa' : '3px solid transparent', minWidth: 56 }}>
+            <div key={m.id} onClick={() => go(m.id)} style={{ flex: '0 0 auto', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, cursor: 'pointer', background: active === m.id ? '#333333' : 'transparent', borderBottom: active === m.id ? '3px solid #ffffff' : '3px solid transparent', minWidth: 56 }}>
               <span style={{ fontSize: 20 }}>{m.icon}</span>
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', whiteSpace: 'nowrap' }}>{m.label}</span>
             </div>
@@ -123,7 +123,7 @@ export default function Committee({ session }) {
 
 // ─── SHARED ───────────────────────────────────────────────
 const btn = (color) => ({ padding: '8px 14px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 })
-const editBtn = { padding: '6px 10px', background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }
+const editBtn = { padding: '6px 10px', background: '#f5f5f5', color: '#333333', border: '1px solid #e0e0e0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }
 const inp = { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }
 const card = { background: 'white', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 12 }
 
@@ -154,21 +154,21 @@ function MeetingsPage({ isMobile }) {
   }
   async function del(id) { await supabase.from('committee_meetings').delete().eq('id', id); load() }
 
-  const tag = (type) => ({ background: type === 'Minutes' ? '#dcfce7' : type === 'Agenda' ? '#dbeafe' : '#fef3c7', color: type === 'Minutes' ? '#16a34a' : type === 'Agenda' ? '#1d4ed8' : '#d97706', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' })
+  const tag = (type) => ({ background: type === 'Minutes' ? '#dcfce7' : type === 'Agenda' ? '#f0f0f0' : '#fef3c7', color: type === 'Minutes' ? '#16a34a' : type === 'Agenda' ? '#333333' : '#d97706', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' })
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1e3a5f' }}>📝 Meetings</div>
+          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>📝 Meetings</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Agendas, registers, minutes</div>
         </div>
-        <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add</button>
+        <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
       </div>
 
       {showForm && (
-        <div style={{ ...card, background: '#f8fafc' }}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit' : '+ New'}</div>
+        <div style={{ ...card, background: '#fafafa' }}>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit' : '+ New'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             <input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inp} />
             <input type="date" value={form.meeting_date} onChange={e => setForm({ ...form, meeting_date: e.target.value })} style={inp} />
@@ -198,7 +198,7 @@ function MeetingsPage({ isMobile }) {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-              {item.file_url && <a href={item.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>📎</button></a>}
+              {item.file_url && <a href={item.file_url} target="_blank" rel="noreferrer"><button style={btn('#333333')}>📎</button></a>}
               <button onClick={() => openEdit(item)} style={editBtn}>✏️</button>
               <button onClick={() => del(item.id)} style={btn('#dc2626')}>🗑️</button>
             </div>
@@ -234,7 +234,7 @@ function EventsPage({ isMobile }) {
   }
   async function del(id) { await supabase.from('committee_events').delete().eq('id', id); setSelected(null); load() }
 
-  const typeColor = { Competition: '#7c3aed', 'Venue Hire': '#d97706', Social: '#16a34a', Meeting: '#1e3a5f' }
+  const typeColor = { Competition: '#7c3aed', 'Venue Hire': '#d97706', Social: '#16a34a', Meeting: '#1a1a1a' }
   const tag = (type) => ({ background: (typeColor[type] || '#64748b') + '20', color: typeColor[type] || '#64748b', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600 })
   const lbl = (text) => <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>{text}</label>
 
@@ -242,15 +242,15 @@ function EventsPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1e3a5f' }}>📅 Events & Tasks</div>
+          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>📅 Events & Tasks</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Competitions, venue hire, socials</div>
         </div>
-        <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add</button>
+        <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
       </div>
 
       {showForm && (
         <div style={card}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Event' : '+ New Event'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Event' : '+ New Event'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             <div>{lbl('Event Title')}<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inp} /></div>
             <div>{lbl('Date')}<input type="date" value={form.event_date} onChange={e => setForm({ ...form, event_date: e.target.value })} style={inp} /></div>
@@ -271,9 +271,9 @@ function EventsPage({ isMobile }) {
       )}
 
       {selected && (
-        <div style={{ ...card, borderLeft: '4px solid #1e3a5f', marginBottom: 16 }}>
+        <div style={{ ...card, borderLeft: '4px solid #1a1a1a', marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#1e3a5f' }}>{selected.title}</div>
+            <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a1a' }}>{selected.title}</div>
             <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 8, marginBottom: 12 }}>
@@ -332,15 +332,15 @@ function StaffPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1e3a5f' }}>👤 Staff Records</div>
+          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>👤 Staff Records</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Contracts, IDs, UIF, COIDA</div>
         </div>
-        <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add</button>
+        <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
       </div>
 
       {showForm && (
-        <div style={{ ...card, background: '#f8fafc' }}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Staff' : '+ New Staff Member'}</div>
+        <div style={{ ...card, background: '#fafafa' }}>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Staff' : '+ New Staff Member'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             {[['Full Name', 'name'], ['ID Number', 'id_number'], ['Position', 'position'], ['Contact Number', 'contact'], ['Email', 'email'], ['UIF Number', 'uif_number'], ['COIDA Number', 'coida_number'], ['Notes', 'notes']].map(([ph, key]) => (
               <input key={key} placeholder={ph} value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} style={inp} />
@@ -359,7 +359,7 @@ function StaffPage({ isMobile }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b', marginBottom: 2 }}>{m.name}</div>
-              <div style={{ color: '#2d5080', fontWeight: 600, fontSize: 13, marginBottom: 6 }}>{m.position}</div>
+              <div style={{ color: '#333333', fontWeight: 600, fontSize: 13, marginBottom: 6 }}>{m.position}</div>
               <div style={{ fontSize: 12, color: '#64748b', display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: '3px 16px' }}>
                 {m.id_number && <span>🪪 {m.id_number}</span>}
                 {m.contact && <span>📞 {m.contact}</span>}
@@ -419,20 +419,20 @@ function MembersPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1e3a5f' }}>👥 Members</div>
+          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>👥 Members</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>{members.length} members</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={btn('#ec4899')} onClick={() => setShowBirthdays(!showBirthdays)}>🎂</button>
-          <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add</button>
+          <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
         </div>
       </div>
 
       {showBirthdays && (
         <div style={card}>
-          <div style={{ fontWeight: 700, fontSize: 15, color: '#1e3a5f', marginBottom: 12 }}>🎂 Upcoming Birthdays</div>
+          <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a1a', marginBottom: 12 }}>🎂 Upcoming Birthdays</div>
           {upcomingBirthdays.map(m => (
-            <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+            <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f5f5f5' }}>
               <span style={{ fontWeight: 500, fontSize: 13 }}>{m.name}</span>
               <span style={{ color: m.daysUntil <= 7 ? '#dc2626' : '#64748b', fontSize: 12, fontWeight: m.daysUntil <= 7 ? 600 : 400 }}>
                 {m.daysUntil === 0 ? '🎉 Today!' : `${m.daysUntil}d · ${m.nextBirthday.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}`}
@@ -444,7 +444,7 @@ function MembersPage({ isMobile }) {
 
       {showForm && (
         <div style={card}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Member' : '+ New Member'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Member' : '+ New Member'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             <input placeholder="Full Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inp} />
             <input placeholder="ID Number" value={form.id_number} onChange={e => setForm({ ...form, id_number: e.target.value })} style={inp} />
@@ -472,7 +472,7 @@ function MembersPage({ isMobile }) {
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{m.name}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{m.contact}{m.email && ` · ${m.email}`}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{m.birthday}{m.id_number && ` · ${m.id_number}`}</div>
-                <span style={{ background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: 12, fontSize: 11, marginTop: 4, display: 'inline-block' }}>{m.membership_type}</span>
+                <span style={{ background: '#f0f0f0', color: '#333333', padding: '2px 8px', borderRadius: 12, fontSize: 11, marginTop: 4, display: 'inline-block' }}>{m.membership_type}</span>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button onClick={() => openEdit(m)} style={editBtn}>✏️</button>
@@ -484,20 +484,20 @@ function MembersPage({ isMobile }) {
       ) : (
         <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr style={{ background: '#f8fafc' }}>
+            <thead><tr style={{ background: '#fafafa' }}>
               {['Name', 'ID Number', 'Contact', 'Email', 'Birthday', 'Type', ''].map(h => (
                 <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>
               ))}
             </tr></thead>
             <tbody>
               {filtered.map(m => (
-                <tr key={m.id} style={{ borderTop: '1px solid #f1f5f9' }}>
+                <tr key={m.id} style={{ borderTop: '1px solid #f5f5f5' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 500 }}>{m.name}</td>
                   <td style={{ padding: '12px 16px', color: '#64748b', fontSize: 13 }}>{m.id_number}</td>
                   <td style={{ padding: '12px 16px', color: '#64748b', fontSize: 13 }}>{m.contact}</td>
                   <td style={{ padding: '12px 16px', color: '#64748b', fontSize: 13 }}>{m.email}</td>
                   <td style={{ padding: '12px 16px', color: '#64748b', fontSize: 13 }}>{m.birthday}</td>
-                  <td style={{ padding: '12px 16px' }}><span style={{ background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: 12, fontSize: 12 }}>{m.membership_type}</span></td>
+                  <td style={{ padding: '12px 16px' }}><span style={{ background: '#f0f0f0', color: '#333333', padding: '2px 8px', borderRadius: 12, fontSize: 12 }}>{m.membership_type}</span></td>
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => openEdit(m)} style={editBtn}>✏️</button>
@@ -546,15 +546,15 @@ function ProjectsPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1e3a5f' }}>🚦 Projects</div>
+          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>🚦 Projects</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Red / Yellow / Green indicators</div>
         </div>
-        <button style={btn('#1e3a5f')} onClick={openAdd}>+ Add</button>
+        <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
       </div>
 
       {showForm && (
         <div style={card}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1e3a5f' }}>{editId ? '✏️ Edit Project' : '+ New Project'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Project' : '+ New Project'}</div>
           <Grid cols={4} mCols={1} isMobile={isMobile}>
             <input placeholder="Project title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inp} />
             <input placeholder="Responsible" value={form.responsible} onChange={e => setForm({ ...form, responsible: e.target.value })} style={inp} />
@@ -597,14 +597,14 @@ function ProjectsPage({ isMobile }) {
       ) : (
         <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr style={{ background: '#f8fafc' }}>
+            <thead><tr style={{ background: '#fafafa' }}>
               {['Status', 'Project', 'Responsible', 'Due Date', 'Notes', 'Update', ''].map(h => (
                 <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>
               ))}
             </tr></thead>
             <tbody>
               {projects.map(p => (
-                <tr key={p.id} style={{ borderTop: '1px solid #f1f5f9' }}>
+                <tr key={p.id} style={{ borderTop: '1px solid #f5f5f5' }}>
                   <td style={{ padding: '12px 16px', fontSize: 22 }}>{statusEmoji[p.status]}</td>
                   <td style={{ padding: '12px 16px', fontWeight: 600 }}>{p.title}</td>
                   <td style={{ padding: '12px 16px', color: '#64748b' }}>{p.responsible}</td>
@@ -695,10 +695,10 @@ function PortalAdminPage({ isMobile }) {
 
   async function del(table, id) { await supabase.from(table).delete().eq('id', id); fetchAll() }
 
-  const tabBtn = (active) => ({ padding: isMobile ? '6px 8px' : '8px 14px', background: active ? '#1e3a5f' : 'white', color: active ? 'white' : '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: isMobile ? 11 : 13 })
+  const tabBtn = (active) => ({ padding: isMobile ? '6px 8px' : '8px 14px', background: active ? '#1a1a1a' : 'white', color: active ? 'white' : '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: isMobile ? 11 : 13 })
   const fileBox = { border: '2px dashed #cbd5e1', borderRadius: 8, padding: '12px 16px', background: 'white', cursor: 'pointer', fontSize: 13, color: '#64748b', textAlign: 'center', display: 'block', width: '100%', boxSizing: 'border-box' }
-  const row = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9', gap: 8 }
-  const formCard = { background: '#f8fafc', borderRadius: 12, padding: 16, marginBottom: 12 }
+  const row = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f5f5f5', gap: 8 }
+  const formCard = { background: '#fafafa', borderRadius: 12, padding: 16, marginBottom: 12 }
 
   const tabs = [
     { id: 'contacts', label: isMobile ? '👥' : '👥 Contacts' },
@@ -712,7 +712,7 @@ function PortalAdminPage({ isMobile }) {
     return (
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>
-          PDF File {currentUrl && <a href={currentUrl} target="_blank" rel="noreferrer" style={{ color: '#0369a1', marginLeft: 8 }}>📎 View</a>}
+          PDF File {currentUrl && <a href={currentUrl} target="_blank" rel="noreferrer" style={{ color: '#333333', marginLeft: 8 }}>📎 View</a>}
         </div>
         <label style={fileBox}>
           {uploading ? '⏳ Uploading...' : '📁 Click to upload PDF'}
@@ -731,7 +731,7 @@ function PortalAdminPage({ isMobile }) {
 
   return (
     <div>
-      <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1e3a5f', marginBottom: 4 }}>⚙️ Portal Admin</div>
+      <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>⚙️ Portal Admin</div>
       <div style={{ color: '#64748b', marginBottom: 16, fontSize: 13 }}>Manage public-facing content</div>
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
@@ -826,7 +826,7 @@ function PortalAdminPage({ isMobile }) {
                 <div style={{ color: '#64748b', fontSize: 12 }}>{d.category} · {d.file_date}</div>
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                {d.file_url && <a href={d.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>📎</button></a>}
+                {d.file_url && <a href={d.file_url} target="_blank" rel="noreferrer"><button style={btn('#333333')}>📎</button></a>}
                 <button style={editBtn} onClick={() => openEdit(setDocForm, d, ['name', 'category', 'file_date', 'file_url'])}>✏️</button>
                 <button style={btn('#dc2626')} onClick={() => del('portal_documents', d.id)}>🗑️</button>
               </div>
@@ -861,7 +861,7 @@ function PortalAdminPage({ isMobile }) {
                 <div style={{ color: '#64748b', fontSize: 12 }}>{a.type} · {a.year}</div>
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                {a.file_url && <a href={a.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>📎</button></a>}
+                {a.file_url && <a href={a.file_url} target="_blank" rel="noreferrer"><button style={btn('#333333')}>📎</button></a>}
                 <button style={editBtn} onClick={() => openEdit(setAgmForm, a, ['name', 'type', 'year', 'file_url'])}>✏️</button>
                 <button style={btn('#dc2626')} onClick={() => del('portal_agm', a.id)}>🗑️</button>
               </div>
@@ -893,7 +893,7 @@ function PortalAdminPage({ isMobile }) {
                 <div style={{ color: '#64748b', fontSize: 12 }}>{n.published_date}</div>
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                {n.file_url && <a href={n.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>📎</button></a>}
+                {n.file_url && <a href={n.file_url} target="_blank" rel="noreferrer"><button style={btn('#333333')}>📎</button></a>}
                 <button style={editBtn} onClick={() => openEdit(setNlForm, n, ['title', 'published_date', 'file_url'])}>✏️</button>
                 <button style={btn('#dc2626')} onClick={() => del('portal_newsletter', n.id)}>🗑️</button>
               </div>
