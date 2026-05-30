@@ -9,23 +9,24 @@ import { supabase } from './supabase'
 
 export default function App() {
   const [session, setSession] = useState(undefined)
-  const [role, setRole] = useState('member')
+  const [role, setRole] = useState(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session)
-      if (session) {
-        fetchRole()
-      } else {
-        setReady(true)
-      }
+      if (session) await fetchRole()
+      setReady(true)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session)
-      if (session) fetchRole()
-      else { setRole('member'); setReady(true) }
+      if (session) {
+        await fetchRole()
+      } else {
+        setRole(null)
+        setReady(true)
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -34,16 +35,14 @@ export default function App() {
   async function fetchRole() {
     try {
       const { data } = await supabase.rpc('get_my_role')
-      if (data) setRole(data)
-      else setRole('member')
+      setRole(data || 'member')
     } catch {
       setRole('member')
-    } finally {
-      setReady(true)
     }
   }
 
-  if (!ready) return (
+  // Don't render anything until session AND role are both resolved
+  if (!ready || (session && role === null)) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Segoe UI', color: '#1e3a5f', fontSize: 18 }}>
       Loading...
     </div>
@@ -60,10 +59,12 @@ export default function App() {
           : <Login />
       } />
       <Route path="/member" element={
-  session
-    ? (isAdmin ? <Navigate to="/committee" /> : <MemberPortal session={session} />)
-    : <Navigate to="/login" />
-} />
+        !session
+          ? <Navigate to="/login" />
+          : isAdmin
+          ? <Navigate to="/committee" />
+          : <MemberPortal session={session} />
+      } />
       <Route path="/committee/*" element={
         session && isAdmin
           ? <Committee session={session} role={role} />
