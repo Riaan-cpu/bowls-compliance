@@ -60,8 +60,10 @@ export default function App() {
           : <Login />
       } />
       <Route path="/member" element={
-        session ? <MemberPortal session={session} /> : <Navigate to="/login" />
-      } />
+  session
+    ? (isAdmin ? <Navigate to="/committee" /> : <MemberPortal session={session} />)
+    : <Navigate to="/login" />
+} />
       <Route path="/committee/*" element={
         session && isAdmin
           ? <Committee session={session} role={role} />
