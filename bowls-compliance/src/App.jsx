@@ -16,7 +16,7 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       if (session) {
-        fetchRole(session.user.id)
+        fetchRole()
       } else {
         setReady(true)
       }
@@ -24,21 +24,17 @@ export default function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (session) fetchRole(session.user.id)
+      if (session) fetchRole()
       else { setRole('member'); setReady(true) }
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  async function fetchRole(userId) {
+  async function fetchRole() {
     try {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .limit(1)
-      if (data && data.length > 0) setRole(data[0].role)
+      const { data } = await supabase.rpc('get_my_role')
+      if (data) setRole(data)
       else setRole('member')
     } catch {
       setRole('member')
