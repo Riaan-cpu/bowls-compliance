@@ -21,13 +21,13 @@ export default function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session)
-      setReady(false) // Set ready to false while we fetch the new role
+      setReady(false)
       if (session) {
         await fetchRole()
       } else {
         setRole(null)
-        setReady(true)
       }
+      setReady(true)
     })
 
     return () => subscription.unsubscribe()
@@ -42,8 +42,7 @@ export default function App() {
     }
   }
 
-  // Don't render anything until session AND role are both resolved
-  if (!ready || (session && role === null)) return (
+  if (!ready) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Segoe UI', color: '#1e3a5f', fontSize: 18 }}>
       Loading...
     </div>
