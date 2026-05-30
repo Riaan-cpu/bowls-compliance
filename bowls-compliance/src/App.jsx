@@ -21,6 +21,7 @@ export default function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session)
+      setReady(false) // Set ready to false while we fetch the new role
       if (session) {
         await fetchRole()
       } else {
