@@ -38,7 +38,8 @@ export default function Login() {
     wrap: { display: 'flex', minHeight: '100vh', fontFamily: 'Segoe UI, sans-serif', background: '#f1f5f9', alignItems: 'center', justifyContent: 'center' },
     box: { background: 'white', borderRadius: 16, padding: 48, boxShadow: '0 4px 24px rgba(0,0,0,0.10)', width: '100%', maxWidth: 400 },
     title: { fontSize: 24, fontWeight: 700, color: '#1e3a5f', marginBottom: 4, textAlign: 'center' },
-    sub: { fontSize: 14, color: '#64748b', textAlign: 'center', marginBottom: 32 },
+    sub: { fontSize: 14, color: '#64748b', textAlign: 'center', marginBottom: 8 },
+    subNote: { fontSize: 13, color: '#94a3b8', textAlign: 'center', marginBottom: 32 },
     label: { fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6, display: 'block' },
     input: { width: '100%', padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, marginBottom: 16, boxSizing: 'border-box' },
     btn: { width: '100%', padding: '12px 0', background: '#1e3a5f', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 15 },
@@ -56,7 +57,8 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>⚪</div>
           <div style={s.title}>White River Bowls Club</div>
-          <div style={s.sub}>Member & Committee Portal</div>
+          <div style={s.sub}>Members & committee staff sign in here</div>
+          <div style={s.subNote}>Members get calendar access · Committee get full dashboard access</div>
         </div>
 
         <div style={s.tabs}>
@@ -79,7 +81,7 @@ export default function Login() {
 
         {mode === 'signup' && (
           <div style={{ background: '#f0f9ff', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#0369a1' }}>
-            ℹ️ Members get access to the Events Calendar after registering.
+            ℹ️ New members get access to the Events Calendar after registering.
           </div>
         )}
 
