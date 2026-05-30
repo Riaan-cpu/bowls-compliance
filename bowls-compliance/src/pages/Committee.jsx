@@ -705,6 +705,8 @@ function PortalAdminPage() {
   const [agmForm, setAgmForm] = useState({ name: '', type: 'Minutes', year: '', file_url: '' })
   const [nlForm, setNlForm] = useState({ title: '', published_date: '', file_url: '' })
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
 
   useState(() => { fetchAll() }, [])
 
@@ -721,6 +723,19 @@ function PortalAdminPage() {
     if (!d.error) setDocs(d.data)
     if (!a.error) setAgm(a.data)
     if (!n.error) setNewsletters(n.data)
+  }
+
+  async function uploadFile(file, folder) {
+    if (!file) return null
+    setUploading(true)
+    setUploadError('')
+    const ext = file.name.split('.').pop()
+    const fileName = `${folder}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
+    const { error } = await supabase.storage.from('documents').upload(fileName, file, { contentType: file.type })
+    setUploading(false)
+    if (error) { setUploadError('Upload failed: ' + error.message); return null }
+    const { data } = supabase.storage.from('documents').getPublicUrl(fileName)
+    return data.publicUrl
   }
 
   function openEdit(formSetter, item, fields) {
@@ -751,6 +766,7 @@ function PortalAdminPage() {
     tabBtn: (active) => ({ padding: '8px 16px', background: active ? '#1e3a5f' : 'white', color: active ? 'white' : '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }),
     formCard: { background: '#f8fafc', borderRadius: 12, padding: 20, marginBottom: 12 },
     row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' },
+    fileBox: { border: '2px dashed #cbd5e1', borderRadius: 8, padding: '12px 16px', background: 'white', cursor: 'pointer', fontSize: 13, color: '#64748b', textAlign: 'center' },
   }
 
   const tabs = [
@@ -760,6 +776,29 @@ function PortalAdminPage() {
     { id: 'agm', label: '📊 AGM Docs' },
     { id: 'newsletter', label: '📰 Newsletter' },
   ]
+
+  // Shared file upload widget
+  function FileUpload({ currentUrl, onUploaded, folder }) {
+    return (
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>
+          PDF File {currentUrl && <a href={currentUrl} target="_blank" rel="noreferrer" style={{ color: '#0369a1', marginLeft: 8 }}>📎 View current file</a>}
+        </div>
+        <label style={s.fileBox}>
+          {uploading ? '⏳ Uploading...' : '📁 Click to upload PDF (or drag & drop)'}
+          <input type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }}
+            onChange={async e => {
+              const file = e.target.files[0]
+              if (!file) return
+              const url = await uploadFile(file, folder)
+              if (url) onUploaded(url)
+            }} />
+        </label>
+        {uploadError && <div style={{ color: '#dc2626', fontSize: 12, marginTop: 4 }}>{uploadError}</div>}
+        {currentUrl && <div style={{ fontSize: 12, color: '#16a34a', marginTop: 4 }}>✅ File attached</div>}
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -782,7 +821,7 @@ function PortalAdminPage() {
               <input placeholder="Email" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} style={s.input} />
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_contacts', contactForm, () => { setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }) })} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Contact'}</button>
+              <button style={btn('#16a34a')} onClick={() => save('portal_contacts', contactForm, () => setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Contact'}</button>
               {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }) }}>Cancel</button>}
             </div>
           </div>
@@ -840,16 +879,22 @@ function PortalAdminPage() {
               </select>
               <input type="date" value={docForm.file_date} onChange={e => setDocForm({ ...docForm, file_date: e.target.value })} style={s.input} />
             </div>
-            <input placeholder="File URL (Google Drive link, etc)" value={docForm.file_url} onChange={e => setDocForm({ ...docForm, file_url: e.target.value })} style={{ ...s.input, marginBottom: 12 }} />
+            <div style={{ marginBottom: 12 }}>
+              <FileUpload folder="documents" currentUrl={docForm.file_url} onUploaded={url => setDocForm({ ...docForm, file_url: url })} />
+            </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_documents', docForm, () => setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Document'}</button>
+              <button style={btn('#16a34a')} onClick={() => save('portal_documents', docForm, () => setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Document'}</button>
               {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }) }}>Cancel</button>}
             </div>
           </div>
           {docs.map(d => (
             <div key={d.id} style={s.row}>
-              <div><span style={{ fontWeight: 600 }}>{d.name}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {d.category} · {d.file_date}</span></div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div>
+                <span style={{ fontWeight: 600 }}>{d.name}</span>
+                <span style={{ color: '#64748b', fontSize: 13 }}>· {d.category} · {d.file_date}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {d.file_url && <a href={d.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>📎 View</button></a>}
                 <button style={editBtn} onClick={() => openEdit(setDocForm, d, ['name', 'category', 'file_date', 'file_url'])}>✏️ Edit</button>
                 <button style={btn('#dc2626')} onClick={() => del('portal_documents', d.id)}>Delete</button>
               </div>
@@ -870,16 +915,22 @@ function PortalAdminPage() {
               </select>
               <input placeholder="Year (e.g. 2025)" value={agmForm.year} onChange={e => setAgmForm({ ...agmForm, year: e.target.value })} style={s.input} />
             </div>
-            <input placeholder="File URL" value={agmForm.file_url} onChange={e => setAgmForm({ ...agmForm, file_url: e.target.value })} style={{ ...s.input, marginBottom: 12 }} />
+            <div style={{ marginBottom: 12 }}>
+              <FileUpload folder="agm" currentUrl={agmForm.file_url} onUploaded={url => setAgmForm({ ...agmForm, file_url: url })} />
+            </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_agm', agmForm, () => setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Document'}</button>
+              <button style={btn('#16a34a')} onClick={() => save('portal_agm', agmForm, () => setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Document'}</button>
               {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }) }}>Cancel</button>}
             </div>
           </div>
           {agm.map(a => (
             <div key={a.id} style={s.row}>
-              <div><span style={{ fontWeight: 600 }}>{a.name}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {a.type} · {a.year}</span></div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div>
+                <span style={{ fontWeight: 600 }}>{a.name}</span>
+                <span style={{ color: '#64748b', fontSize: 13 }}>· {a.type} · {a.year}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {a.file_url && <a href={a.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>📎 View</button></a>}
                 <button style={editBtn} onClick={() => openEdit(setAgmForm, a, ['name', 'type', 'year', 'file_url'])}>✏️ Edit</button>
                 <button style={btn('#dc2626')} onClick={() => del('portal_agm', a.id)}>Delete</button>
               </div>
@@ -897,16 +948,22 @@ function PortalAdminPage() {
               <input placeholder="Newsletter title" value={nlForm.title} onChange={e => setNlForm({ ...nlForm, title: e.target.value })} style={s.input} />
               <input type="date" value={nlForm.published_date} onChange={e => setNlForm({ ...nlForm, published_date: e.target.value })} style={s.input} />
             </div>
-            <input placeholder="File URL" value={nlForm.file_url} onChange={e => setNlForm({ ...nlForm, file_url: e.target.value })} style={{ ...s.input, marginBottom: 12 }} />
+            <div style={{ marginBottom: 12 }}>
+              <FileUpload folder="newsletters" currentUrl={nlForm.file_url} onUploaded={url => setNlForm({ ...nlForm, file_url: url })} />
+            </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_newsletter', nlForm, () => setNlForm({ title: '', published_date: '', file_url: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Newsletter'}</button>
+              <button style={btn('#16a34a')} onClick={() => save('portal_newsletter', nlForm, () => setNlForm({ title: '', published_date: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add Newsletter'}</button>
               {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setNlForm({ title: '', published_date: '', file_url: '' }) }}>Cancel</button>}
             </div>
           </div>
           {newsletters.map(n => (
             <div key={n.id} style={s.row}>
-              <div><span style={{ fontWeight: 600 }}>{n.title}</span> <span style={{ color: '#64748b', fontSize: 13 }}>· {n.published_date}</span></div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div>
+                <span style={{ fontWeight: 600 }}>{n.title}</span>
+                <span style={{ color: '#64748b', fontSize: 13 }}>· {n.published_date}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {n.file_url && <a href={n.file_url} target="_blank" rel="noreferrer"><button style={btn('#2d5080')}>📎 View</button></a>}
                 <button style={editBtn} onClick={() => openEdit(setNlForm, n, ['title', 'published_date', 'file_url'])}>✏️ Edit</button>
                 <button style={btn('#dc2626')} onClick={() => del('portal_newsletter', n.id)}>Delete</button>
               </div>
