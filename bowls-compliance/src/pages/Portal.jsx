@@ -7,7 +7,6 @@ const navItems = [
   { id: 'documents', label: 'Documents', icon: '📄' },
   { id: 'events', label: 'Events', icon: '📅' },
   { id: 'contacts', label: 'Committee', icon: '👥' },
-  { id: 'agm', label: 'AGM & Financials', icon: '📊' },
   { id: 'newsletter', label: 'Newsletter', icon: '📰' },
 ]
 
@@ -17,23 +16,20 @@ export default function Portal() {
   const [documents, setDocuments] = useState([])
   const [events, setEvents] = useState([])
   const [contacts, setContacts] = useState([])
-  const [agmDocs, setAgmDocs] = useState([])
   const [newsletters, setNewsletters] = useState([])
 
   useEffect(() => { fetchAll() }, [])
 
   async function fetchAll() {
-    const [d, e, c, a, n] = await Promise.all([
+    const [d, e, c, n] = await Promise.all([
       supabase.from('portal_documents').select('*').order('created_at', { ascending: false }),
       supabase.from('portal_events').select('*').order('event_date'),
       supabase.from('portal_contacts').select('*').order('sort_order'),
-      supabase.from('portal_agm').select('*').order('created_at', { ascending: false }),
       supabase.from('portal_newsletter').select('*').order('created_at', { ascending: false }),
     ])
     if (!d.error) setDocuments(d.data)
     if (!e.error) setEvents(e.data)
     if (!c.error) setContacts(c.data)
-    if (!a.error) setAgmDocs(a.data)
     if (!n.error) setNewsletters(n.data)
   }
 
@@ -43,7 +39,6 @@ export default function Portal() {
     logo: { fontWeight: 700, fontSize: 18 },
     nav: { display: 'flex', gap: 4 },
     navBtn: (active, id) => ({ background: active === id ? 'rgba(255,255,255,0.15)' : 'none', border: 'none', color: 'white', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: active === id ? 600 : 400 }),
-    loginBtn: { background: 'white', color: '#1e3a5f', border: 'none', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 14 },
     hero: { background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5080 100%)', color: 'white', padding: '64px 32px', textAlign: 'center' },
     heroTitle: { fontSize: 42, fontWeight: 700, marginBottom: 12 },
     heroSub: { fontSize: 18, opacity: 0.85, marginBottom: 32 },
@@ -72,7 +67,12 @@ export default function Portal() {
             </button>
           ))}
         </nav>
-        <button style={s.loginBtn} onClick={() => navigate('/login')}>Committee Login</button>
+        {/* Discreet admin login - small and unobtrusive */}
+        <button
+          style={{ background: 'none', border: '1px solid rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.6)', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 12 }}
+          onClick={() => navigate('/login')}>
+          Admin
+        </button>
       </header>
 
       {/* Hero - only on home */}
@@ -92,6 +92,7 @@ export default function Portal() {
       )}
 
       <main style={s.main}>
+
         {/* DOCUMENTS */}
         {active === 'documents' && (
           <div>
@@ -154,24 +155,6 @@ export default function Portal() {
                     {c.phone && <div>📞 {c.phone}</div>}
                     {c.email && <div>✉️ {c.email}</div>}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* AGM */}
-        {active === 'agm' && (
-          <div>
-            <div style={s.sectionTitle}>📊 AGM Minutes, Agendas & Financials</div>
-            {agmDocs.length === 0 && <div style={s.emptyState}><div style={{ fontSize: 48 }}>📊</div><div>No AGM documents uploaded yet</div></div>}
-            <div style={s.grid3}>
-              {agmDocs.map(doc => (
-                <div key={doc.id} style={s.docCard}>
-                  <div style={{ fontSize: 28 }}>{doc.type === 'Minutes' ? '📝' : doc.type === 'Financials' ? '💰' : '📋'}</div>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{doc.name}</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{doc.type} · {doc.year}</div>
-                  {doc.file_url && <a href={doc.file_url} target="_blank" rel="noreferrer"><button style={s.btn}>Download</button></a>}
                 </div>
               ))}
             </div>
