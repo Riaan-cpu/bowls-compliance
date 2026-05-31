@@ -34,16 +34,21 @@ export default function App() {
 
   async function fetchRole() {
     try {
-      const { data } = await supabase.rpc('get_my_role')
-      setRole(data || 'member')
+      // Race between the RPC call and a 5 second timeout
+      const result = await Promise.race([
+        supabase.rpc('get_my_role'),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+      ])
+      setRole(result?.data || 'member')
     } catch {
       setRole('member')
     }
   }
 
   if (!ready) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Segoe UI', color: '#1e3a5f', fontSize: 18 }}>
-      Loading...
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Segoe UI', color: '#1a1a1a', fontSize: 18, gap: 16 }}>
+      <div>⚪</div>
+      <div>Loading...</div>
     </div>
   )
 
