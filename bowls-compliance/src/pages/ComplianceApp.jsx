@@ -11,13 +11,18 @@ const modules = [
   { id: 'documents', label: 'Documents', icon: '📁' },
 ]
 
+function parseLocalDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 function calcStatus(dateStr) {
   if (!dateStr) return 'Compliant'
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const due = new Date(dateStr)
+  const due = parseLocalDate(dateStr)
   const days = Math.ceil((due - today) / (1000 * 60 * 60 * 24))
-  if (days <= 0) return 'Overdue'
+  if (days < 0) return 'Overdue'
   if (days <= 90) return 'Due Soon'
   return 'Compliant'
 }
@@ -47,6 +52,7 @@ export default function ComplianceApp({ session }) {
   const [risks, setRisks] = useState([])
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
+  const [dbError, setDbError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [complianceForm, setComplianceForm] = useState({ name: '', due_date: '', owner: '' })
@@ -66,46 +72,74 @@ export default function ComplianceApp({ session }) {
       supabase.from('risk_register').select('*'),
       supabase.from('documents').select('*').order('file_date'),
     ])
-    if (!c.error) setComplianceItems(c.data)
-    if (!l.error) setLicences(l.data)
-    if (!ci.error) setCipc(ci.data)
-    if (!g.error) setGovernance(g.data)
-    if (!r.error) setRisks(r.data)
-    if (!d.error) setDocuments(d.data)
+    if (!c.error) setComplianceItems(c.data ?? [])
+    if (!l.error) setLicences(l.data ?? [])
+    if (!ci.error) setCipc(ci.data ?? [])
+    if (!g.error) setGovernance(g.data ?? [])
+    if (!r.error) setRisks(r.data ?? [])
+    if (!d.error) setDocuments(d.data ?? [])
     setLoading(false)
   }
 
-  async function deleteRow(table, id) { await supabase.from(table).delete().eq('id', id); fetchAll() }
+  async function deleteRow(table, id) {
+    const { error } = await supabase.from(table).delete().eq('id', id)
+    if (error) { setDbError('Delete failed: ' + error.message); return }
+    fetchAll()
+  }
 
   async function addCompliance() {
     setSaving(true)
-    const status = calcStatus(complianceForm.due_date)
-    await supabase.from('compliance_items').insert([{ ...complianceForm, status }])
-    setComplianceForm({ name: '', due_date: '', owner: '' })
-    setShowForm(false); setSaving(false); fetchAll()
+    try {
+      const status = calcStatus(complianceForm.due_date)
+      const { error } = await supabase.from('compliance_items').insert([{ ...complianceForm, status }])
+      if (error) { setDbError('Save failed: ' + error.message); return }
+      setComplianceForm({ name: '', due_date: '', owner: '' })
+      setShowForm(false)
+      fetchAll()
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function addLicence() {
     setSaving(true)
-    const status = calcStatus(licenceForm.expiry_date)
-    await supabase.from('licences').insert([{ ...licenceForm, status }])
-    setLicenceForm({ name: '', licence_number: '', issued_date: '', expiry_date: '', authority: '' })
-    setShowForm(false); setSaving(false); fetchAll()
+    try {
+      const status = calcStatus(licenceForm.expiry_date)
+      const { error } = await supabase.from('licences').insert([{ ...licenceForm, status }])
+      if (error) { setDbError('Save failed: ' + error.message); return }
+      setLicenceForm({ name: '', licence_number: '', issued_date: '', expiry_date: '', authority: '' })
+      setShowForm(false)
+      fetchAll()
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function addGovernance() {
     setSaving(true)
-    const status = calcStatus(govForm.next_due)
-    await supabase.from('governance').insert([{ ...govForm, status }])
-    setGovForm({ name: '', frequency: '', last_done: '', next_due: '' })
-    setShowForm(false); setSaving(false); fetchAll()
+    try {
+      const status = calcStatus(govForm.next_due)
+      const { error } = await supabase.from('governance').insert([{ ...govForm, status }])
+      if (error) { setDbError('Save failed: ' + error.message); return }
+      setGovForm({ name: '', frequency: '', last_done: '', next_due: '' })
+      setShowForm(false)
+      fetchAll()
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function addRisk() {
     setSaving(true)
-    await supabase.from('risk_register').insert([riskForm])
-    setRiskForm({ risk: '', category: '', likelihood: 'Low', impact: 'Low', mitigation: '' })
-    setShowForm(false); setSaving(false); fetchAll()
+    try {
+      const { error } = await supabase.from('risk_register').insert([riskForm])
+      if (error) { setDbError('Save failed: ' + error.message); return }
+      setRiskForm({ risk: '', category: '', likelihood: 'Low', impact: 'Low', mitigation: '' })
+      setShowForm(false)
+      fetchAll()
+    } finally {
+      setSaving(false)
+    }
   }
 
   // Always recalculate status from date on display
@@ -123,7 +157,7 @@ export default function ComplianceApp({ session }) {
   function daysUntil(dateStr) {
     if (!dateStr) return null
     const today = new Date(); today.setHours(0,0,0,0)
-    const due = new Date(dateStr)
+    const due = parseLocalDate(dateStr)
     const days = Math.ceil((due - today) / (1000 * 60 * 60 * 24))
     if (days < 0) return `${Math.abs(days)}d overdue`
     if (days === 0) return 'Due today'
@@ -159,6 +193,13 @@ export default function ComplianceApp({ session }) {
 
       {/* Main */}
       <div style={{ flex: 1, overflow: 'auto', padding: 32 }}>
+
+          {dbError && (
+          <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 10, padding: '10px 18px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#dc2626', fontWeight: 600, fontSize: 13 }}>{dbError}</span>
+            <button onClick={() => setDbError(null)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
+          </div>
+        )}
 
         {/* DASHBOARD */}
         {active === 'dashboard' && (
