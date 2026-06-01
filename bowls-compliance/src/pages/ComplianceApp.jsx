@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 
 const modules = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'licences', label: 'Licences', icon: '📜' },
-  { id: 'cipc', label: 'CIPC', icon: '🏛️' },
-  { id: 'governance', label: 'Governance', icon: '⚖️' },
-  { id: 'risk', label: 'Risk Register', icon: '⚠️' },
-  { id: 'documents', label: 'Documents', icon: '📁' },
+  { id: 'dashboard', label: 'Dashboard', abbr: 'DB' },
+  { id: 'licences', label: 'Licences', abbr: 'LI' },
+  { id: 'cipc', label: 'CIPC', abbr: 'CI' },
+  { id: 'governance', label: 'Governance', abbr: 'GO' },
+  { id: 'risk', label: 'Risk Register', abbr: 'RK' },
+  { id: 'documents', label: 'Documents', abbr: 'DO' },
 ]
 
 function parseLocalDate(dateStr) {
@@ -174,14 +174,16 @@ export default function ComplianceApp({ session }) {
       {/* Sidebar */}
       <div style={{ width: sidebarOpen ? 220 : 60, background: '#1a1a1a', color: 'white', transition: 'width 0.2s', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '20px 16px', borderBottom: '1px solid #333', display: 'flex', alignItems: 'center', gap: 10 }}>
-          {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.3 }}>Compliance<br /><span style={{ opacity: 0.6, fontSize: 11 }}>White River BC</span></span>}
+          {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', lineHeight: 1.4 }}>Compliance<br /><span style={{ opacity: 0.5, fontWeight: 400 }}>White River BC</span></span>}
           <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'white', fontSize: 18, cursor: 'pointer' }}>☰</button>
         </div>
         {modules.map(m => (
           <div key={m.id} onClick={() => { setActive(m.id); setShowForm(false) }}
-            style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: active === m.id ? '#333' : 'transparent', borderLeft: active === m.id ? '3px solid #fff' : '3px solid transparent' }}>
-            <span style={{ fontSize: 18 }}>{m.icon}</span>
-            {sidebarOpen && <span style={{ fontSize: 14 }}>{m.label}</span>}
+            style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', cursor: 'pointer', background: active === m.id ? '#2a2a2a' : 'transparent', borderLeft: active === m.id ? '2px solid #fff' : '2px solid transparent' }}>
+            {sidebarOpen
+              ? <span style={{ fontSize: 13 }}>{m.label}</span>
+              : <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, opacity: 0.7 }}>{m.abbr}</span>
+            }
           </div>
         ))}
         <div style={{ marginTop: 'auto', padding: 16, borderTop: '1px solid #333' }}>

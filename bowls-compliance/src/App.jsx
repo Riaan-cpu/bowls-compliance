@@ -46,9 +46,8 @@ export default function App() {
   }
 
   if (!ready) return (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Segoe UI', color: '#1a1a1a', fontSize: 18, gap: 16 }}>
-      <div>⚪</div>
-      <div>Loading...</div>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Segoe UI', color: '#64748b', fontSize: 13, letterSpacing: 1 }}>
+      Loading
     </div>
   )
 

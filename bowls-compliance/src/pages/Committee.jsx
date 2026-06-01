@@ -3,14 +3,14 @@ import { supabase } from '../supabase'
 import { useNavigate } from 'react-router-dom'
 
 const modules = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'meetings', label: 'Meetings', icon: '📝' },
-  { id: 'events', label: 'Events & Tasks', icon: '📅' },
-  { id: 'staff', label: 'Staff Records', icon: '👤' },
-  { id: 'members', label: 'Members DB', icon: '👥' },
-  { id: 'projects', label: 'Projects', icon: '🚦' },
-  { id: 'portal_admin', label: 'Portal Admin', icon: '⚙️' },
-  { id: 'compliance', label: 'Compliance', icon: '⚖️' },
+  { id: 'dashboard', label: 'Dashboard', abbr: 'DB' },
+  { id: 'meetings', label: 'Meetings', abbr: 'MT' },
+  { id: 'events', label: 'Events & Tasks', abbr: 'EV' },
+  { id: 'staff', label: 'Staff Records', abbr: 'ST' },
+  { id: 'members', label: 'Members DB', abbr: 'MB' },
+  { id: 'projects', label: 'Projects', abbr: 'PR' },
+  { id: 'portal_admin', label: 'Portal Admin', abbr: 'PA' },
+  { id: 'compliance', label: 'Compliance', abbr: 'CO' },
 ]
 
 function useIsMobile() {
@@ -46,13 +46,15 @@ export default function Committee({ session }) {
       {!isMobile && (
         <div style={{ width: sidebarOpen ? 220 : 60, background: '#1a1a1a', color: 'white', transition: 'width 0.2s', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
           <div style={{ padding: '20px 16px', borderBottom: '1px solid #333333', display: 'flex', alignItems: 'center', gap: 10 }}>
-            {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.3 }}>White River BC<br /><span style={{ opacity: 0.7, fontSize: 11 }}>Committee Portal</span></span>}
+            {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', lineHeight: 1.4 }}>White River BC<br /><span style={{ opacity: 0.5, fontWeight: 400 }}>Committee</span></span>}
             <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'white', fontSize: 18, cursor: 'pointer' }}>☰</button>
           </div>
           {modules.map(m => (
-            <div key={m.id} onClick={() => go(m.id)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: active === m.id ? '#333333' : 'transparent', borderLeft: active === m.id ? '3px solid #ffffff' : '3px solid transparent' }}>
-              <span style={{ fontSize: 18 }}>{m.icon}</span>
-              {sidebarOpen && <span style={{ fontSize: 14 }}>{m.label}</span>}
+            <div key={m.id} onClick={() => go(m.id)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', cursor: 'pointer', background: active === m.id ? '#2a2a2a' : 'transparent', borderLeft: active === m.id ? '2px solid #ffffff' : '2px solid transparent' }}>
+              {sidebarOpen
+                ? <span style={{ fontSize: 13 }}>{m.label}</span>
+                : <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, opacity: 0.7 }}>{m.abbr}</span>
+              }
             </div>
           ))}
           <div style={{ marginTop: 'auto', padding: 16, borderTop: '1px solid #333333' }}>
@@ -77,21 +79,20 @@ export default function Committee({ session }) {
 
         {active === 'dashboard' && (
           <div>
-            <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Committee Dashboard</div>
-            <div style={{ color: '#64748b', marginBottom: 24, fontSize: 13 }}>Welcome back, {session.user.email}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? 12 : 16 }}>
+            <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>Dashboard</div>
+            <div style={{ color: '#94a3b8', marginBottom: 28, fontSize: 12 }}>{session.user.email}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? 10 : 12 }}>
               {[
-                { label: 'Meetings', icon: '📝', color: '#1a1a1a', id: 'meetings' },
-                { label: 'Events & Tasks', icon: '📅', color: '#16a34a', id: 'events' },
-                { label: 'Staff Records', icon: '👤', color: '#d97706', id: 'staff' },
-                { label: 'Members DB', icon: '👥', color: '#7c3aed', id: 'members' },
-                { label: 'Projects', icon: '🚦', color: '#dc2626', id: 'projects' },
-                { label: 'Portal Admin', icon: '⚙️', color: '#0891b2', id: 'portal_admin' },
-                { label: 'Compliance', icon: '⚖️', color: '#059669', id: 'compliance' },
+                { label: 'Meetings', id: 'meetings' },
+                { label: 'Events & Tasks', id: 'events' },
+                { label: 'Staff Records', id: 'staff' },
+                { label: 'Members DB', id: 'members' },
+                { label: 'Projects', id: 'projects' },
+                { label: 'Portal Admin', id: 'portal_admin' },
+                { label: 'Compliance', id: 'compliance' },
               ].map(item => (
-                <div key={item.id} onClick={() => go(item.id)} style={{ background: 'white', borderRadius: 12, padding: isMobile ? 16 : 28, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderTop: `4px solid ${item.color}`, cursor: 'pointer', textAlign: 'center' }}>
-                  <div style={{ fontSize: isMobile ? 24 : 32, marginBottom: 8 }}>{item.icon}</div>
-                  <div style={{ fontWeight: 600, fontSize: isMobile ? 12 : 14, color: '#1e293b' }}>{item.label}</div>
+                <div key={item.id} onClick={() => go(item.id)} style={{ background: 'white', borderRadius: 10, padding: isMobile ? 16 : 24, border: '1px solid #e2e8f0', cursor: 'pointer', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 600, fontSize: isMobile ? 12 : 13, color: '#1a1a1a' }}>{item.label}</div>
                 </div>
               ))}
             </div>
@@ -122,10 +123,13 @@ export default function Committee({ session }) {
 }
 
 // ─── SHARED ───────────────────────────────────────────────
-const btn = (color) => ({ padding: '8px 14px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 })
-const editBtn = { padding: '6px 10px', background: '#f5f5f5', color: '#333333', border: '1px solid #e0e0e0', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }
-const inp = { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }
-const card = { background: 'white', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 12 }
+const btn = (color) => ({ padding: '7px 14px', background: color, color: color === '#dc2626' ? 'white' : color === '#1a1a1a' || color === '#333333' || color === '#2a2a2a' ? 'white' : '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 12 })
+const saveBtn = { padding: '7px 16px', background: '#1a1a1a', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 12 }
+const cancelBtn = { padding: '7px 16px', background: '#f5f5f5', color: '#374151', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 12 }
+const deleteBtn = { padding: '7px 14px', background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 600, fontSize: 12 }
+const editBtn = { padding: '6px 10px', background: 'white', color: '#374151', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }
+const inp = { padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, width: '100%', boxSizing: 'border-box' }
+const card = { background: 'white', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', marginBottom: 10 }
 
 function Grid({ cols, mCols = 1, isMobile, children, gap = 10 }) {
   return <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? mCols : cols}, 1fr)`, gap, marginBottom: gap }}>{children}</div>
@@ -160,7 +164,7 @@ function MeetingsPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>📝 Meetings</div>
+          <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: '#1a1a1a' }}>Meetings</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Agendas, registers, minutes</div>
         </div>
         <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
@@ -168,7 +172,7 @@ function MeetingsPage({ isMobile }) {
 
       {showForm && (
         <div style={{ ...card, background: '#fafafa' }}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit' : '+ New'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a', fontSize: 13 }}>{editId ? 'Edit' : 'New'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             <input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inp} />
             <input type="date" value={form.meeting_date} onChange={e => setForm({ ...form, meeting_date: e.target.value })} style={inp} />
@@ -181,8 +185,8 @@ function MeetingsPage({ isMobile }) {
             <input placeholder="File URL (optional)" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} style={inp} />
           </Grid>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btn('#16a34a')} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
-            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+            <button style={saveBtn} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
+            <button style={cancelBtn} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
           </div>
         </div>
       )}
@@ -242,7 +246,7 @@ function EventsPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>📅 Events & Tasks</div>
+          <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: '#1a1a1a' }}>Events & Tasks</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Competitions, venue hire, socials</div>
         </div>
         <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
@@ -250,7 +254,7 @@ function EventsPage({ isMobile }) {
 
       {showForm && (
         <div style={card}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Event' : '+ New Event'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a', fontSize: 13 }}>{editId ? 'Edit Event' : 'New Event'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             <div>{lbl('Event Title')}<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inp} /></div>
             <div>{lbl('Date')}<input type="date" value={form.event_date} onChange={e => setForm({ ...form, event_date: e.target.value })} style={inp} /></div>
@@ -264,8 +268,8 @@ function EventsPage({ isMobile }) {
           </Grid>
           <div style={{ marginBottom: 10 }}>{lbl('Notes')}<input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={inp} /></div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btn('#16a34a')} onClick={saveEvent} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
-            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+            <button style={saveBtn} onClick={saveEvent} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
+            <button style={cancelBtn} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
           </div>
         </div>
       )}
@@ -282,8 +286,8 @@ function EventsPage({ isMobile }) {
             ) : null)}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={editBtn} onClick={() => openEdit(selected)}>✏️ Edit</button>
-            <button style={btn('#dc2626')} onClick={() => del(selected.id)}>Delete</button>
+            <button style={editBtn} onClick={() => openEdit(selected)}>Edit</button>
+            <button style={deleteBtn} onClick={() => del(selected.id)}>Delete</button>
           </div>
         </div>
       )}
@@ -332,7 +336,7 @@ function StaffPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>👤 Staff Records</div>
+          <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: '#1a1a1a' }}>Staff Records</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Contracts, IDs, UIF, COIDA</div>
         </div>
         <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
@@ -340,7 +344,7 @@ function StaffPage({ isMobile }) {
 
       {showForm && (
         <div style={{ ...card, background: '#fafafa' }}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Staff' : '+ New Staff Member'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a', fontSize: 13 }}>{editId ? 'Edit Staff' : 'New Staff Member'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             {[['Full Name', 'name'], ['ID Number', 'id_number'], ['Position', 'position'], ['Contact Number', 'contact'], ['Email', 'email'], ['UIF Number', 'uif_number'], ['COIDA Number', 'coida_number'], ['Notes', 'notes']].map(([ph, key]) => (
               <input key={key} placeholder={ph} value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} style={inp} />
@@ -348,8 +352,8 @@ function StaffPage({ isMobile }) {
             <input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} style={inp} />
           </Grid>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btn('#16a34a')} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
-            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+            <button style={saveBtn} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
+            <button style={cancelBtn} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
           </div>
         </div>
       )}
@@ -419,18 +423,18 @@ function MembersPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>👥 Members</div>
+          <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: '#1a1a1a' }}>Members</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>{members.length} members</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={btn('#ec4899')} onClick={() => setShowBirthdays(!showBirthdays)}>🎂</button>
-          <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
+          <button style={cancelBtn} onClick={() => setShowBirthdays(!showBirthdays)}>Birthdays</button>
+          <button style={saveBtn} onClick={openAdd}>+ Add</button>
         </div>
       </div>
 
       {showBirthdays && (
         <div style={card}>
-          <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a1a', marginBottom: 12 }}>🎂 Upcoming Birthdays</div>
+          <div style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>Upcoming Birthdays</div>
           {upcomingBirthdays.map(m => (
             <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f5f5f5' }}>
               <span style={{ fontWeight: 500, fontSize: 13 }}>{m.name}</span>
@@ -444,7 +448,7 @@ function MembersPage({ isMobile }) {
 
       {showForm && (
         <div style={card}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Member' : '+ New Member'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a', fontSize: 13 }}>{editId ? 'Edit Member' : 'New Member'}</div>
           <Grid cols={3} mCols={1} isMobile={isMobile}>
             <input placeholder="Full Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inp} />
             <input placeholder="ID Number" value={form.id_number} onChange={e => setForm({ ...form, id_number: e.target.value })} style={inp} />
@@ -456,13 +460,13 @@ function MembersPage({ isMobile }) {
             </select>
           </Grid>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btn('#16a34a')} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
-            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+            <button style={saveBtn} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
+            <button style={cancelBtn} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
           </div>
         </div>
       )}
 
-      <input placeholder="🔍 Search members..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inp, marginBottom: 12 }} />
+      <input placeholder="Search members..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inp, marginBottom: 12 }} />
 
       {isMobile ? (
         filtered.map(m => (
@@ -546,7 +550,7 @@ function ProjectsPage({ isMobile }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a' }}>🚦 Projects</div>
+          <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: '#1a1a1a' }}>Projects</div>
           <div style={{ color: '#64748b', fontSize: 13 }}>Red / Yellow / Green indicators</div>
         </div>
         <button style={btn('#1a1a1a')} onClick={openAdd}>+ Add</button>
@@ -554,7 +558,7 @@ function ProjectsPage({ isMobile }) {
 
       {showForm && (
         <div style={card}>
-          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a' }}>{editId ? '✏️ Edit Project' : '+ New Project'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12, color: '#1a1a1a', fontSize: 13 }}>{editId ? 'Edit Project' : 'New Project'}</div>
           <Grid cols={4} mCols={1} isMobile={isMobile}>
             <input placeholder="Project title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inp} />
             <input placeholder="Responsible" value={form.responsible} onChange={e => setForm({ ...form, responsible: e.target.value })} style={inp} />
@@ -565,8 +569,8 @@ function ProjectsPage({ isMobile }) {
           </Grid>
           <input placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inp, marginBottom: 10 }} />
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={btn('#16a34a')} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
-            <button style={btn('#64748b')} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
+            <button style={saveBtn} onClick={save} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Save'}</button>
+            <button style={cancelBtn} onClick={() => { setShowForm(false); setEditId(null) }}>Cancel</button>
           </div>
         </div>
       )}
@@ -731,7 +735,7 @@ function PortalAdminPage({ isMobile }) {
 
   return (
     <div>
-      <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>⚙️ Portal Admin</div>
+      <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Portal Admin</div>
       <div style={{ color: '#64748b', marginBottom: 16, fontSize: 13 }}>Manage public-facing content</div>
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
@@ -741,7 +745,7 @@ function PortalAdminPage({ isMobile }) {
       {tab === 'contacts' && (
         <div>
           <div style={formCard}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Contact' : 'Add Contact'}</div>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? 'Edit Contact' : 'Add Contact'}</div>
             <Grid cols={4} mCols={1} isMobile={isMobile}>
               <input placeholder="Name" value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })} style={inp} />
               <input placeholder="Role" value={contactForm.role} onChange={e => setContactForm({ ...contactForm, role: e.target.value })} style={inp} />
@@ -749,8 +753,8 @@ function PortalAdminPage({ isMobile }) {
               <input placeholder="Email" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} style={inp} />
             </Grid>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_contacts', contactForm, () => setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
-              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }) }}>Cancel</button>}
+              <button style={saveBtn} onClick={() => save('portal_contacts', contactForm, () => setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
+              {editId && <button style={cancelBtn} onClick={() => { setEditId(null); setContactForm({ name: '', role: '', phone: '', email: '', sort_order: 0 }) }}>Cancel</button>}
             </div>
           </div>
           {contacts.map(c => (
@@ -771,7 +775,7 @@ function PortalAdminPage({ isMobile }) {
       {tab === 'events' && (
         <div>
           <div style={formCard}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Event' : 'Add Event'}</div>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? 'Edit Event' : 'Add Event'}</div>
             <Grid cols={3} mCols={1} isMobile={isMobile}>
               <input placeholder="Event title" value={eventForm.title} onChange={e => setEventForm({ ...eventForm, title: e.target.value })} style={inp} />
               <input type="date" value={eventForm.event_date} onChange={e => setEventForm({ ...eventForm, event_date: e.target.value })} style={inp} />
@@ -781,8 +785,8 @@ function PortalAdminPage({ isMobile }) {
             </Grid>
             <input placeholder="Description" value={eventForm.description} onChange={e => setEventForm({ ...eventForm, description: e.target.value })} style={{ ...inp, marginBottom: 10 }} />
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_events', eventForm, () => setEventForm({ title: '', event_date: '', type: 'Competition', description: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
-              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setEventForm({ title: '', event_date: '', type: 'Competition', description: '' }) }}>Cancel</button>}
+              <button style={saveBtn} onClick={() => save('portal_events', eventForm, () => setEventForm({ title: '', event_date: '', type: 'Competition', description: '' }))} disabled={saving}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
+              {editId && <button style={cancelBtn} onClick={() => { setEditId(null); setEventForm({ title: '', event_date: '', type: 'Competition', description: '' }) }}>Cancel</button>}
             </div>
           </div>
           {events.map(e => (
@@ -803,7 +807,7 @@ function PortalAdminPage({ isMobile }) {
       {tab === 'documents' && (
         <div>
           <div style={formCard}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Document' : 'Add Document'}</div>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? 'Edit Document' : 'Add Document'}</div>
             <Grid cols={3} mCols={1} isMobile={isMobile}>
               <input placeholder="Document name" value={docForm.name} onChange={e => setDocForm({ ...docForm, name: e.target.value })} style={inp} />
               <select value={docForm.category} onChange={e => setDocForm({ ...docForm, category: e.target.value })} style={inp}>
@@ -815,8 +819,8 @@ function PortalAdminPage({ isMobile }) {
               <FileUpload folder="documents" currentUrl={docForm.file_url} onUploaded={url => setDocForm({ ...docForm, file_url: url })} />
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_documents', docForm, () => setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
-              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }) }}>Cancel</button>}
+              <button style={saveBtn} onClick={() => save('portal_documents', docForm, () => setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
+              {editId && <button style={cancelBtn} onClick={() => { setEditId(null); setDocForm({ name: '', category: 'White River', file_date: '', file_url: '' }) }}>Cancel</button>}
             </div>
           </div>
           {docs.map(d => (
@@ -838,7 +842,7 @@ function PortalAdminPage({ isMobile }) {
       {tab === 'agm' && (
         <div>
           <div style={formCard}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit AGM Doc' : 'Add AGM Document'}</div>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? 'Edit AGM Doc' : 'Add AGM Document'}</div>
             <Grid cols={3} mCols={1} isMobile={isMobile}>
               <input placeholder="Document name" value={agmForm.name} onChange={e => setAgmForm({ ...agmForm, name: e.target.value })} style={inp} />
               <select value={agmForm.type} onChange={e => setAgmForm({ ...agmForm, type: e.target.value })} style={inp}>
@@ -850,8 +854,8 @@ function PortalAdminPage({ isMobile }) {
               <FileUpload folder="agm" currentUrl={agmForm.file_url} onUploaded={url => setAgmForm({ ...agmForm, file_url: url })} />
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_agm', agmForm, () => setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
-              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }) }}>Cancel</button>}
+              <button style={saveBtn} onClick={() => save('portal_agm', agmForm, () => setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
+              {editId && <button style={cancelBtn} onClick={() => { setEditId(null); setAgmForm({ name: '', type: 'Minutes', year: '', file_url: '' }) }}>Cancel</button>}
             </div>
           </div>
           {agm.map(a => (
@@ -873,7 +877,7 @@ function PortalAdminPage({ isMobile }) {
       {tab === 'newsletter' && (
         <div>
           <div style={formCard}>
-            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? '✏️ Edit Newsletter' : 'Add Newsletter'}</div>
+            <div style={{ fontWeight: 600, marginBottom: 12 }}>{editId ? 'Edit Newsletter' : 'Add Newsletter'}</div>
             <Grid cols={2} mCols={1} isMobile={isMobile}>
               <input placeholder="Newsletter title" value={nlForm.title} onChange={e => setNlForm({ ...nlForm, title: e.target.value })} style={inp} />
               <input type="date" value={nlForm.published_date} onChange={e => setNlForm({ ...nlForm, published_date: e.target.value })} style={inp} />
@@ -882,8 +886,8 @@ function PortalAdminPage({ isMobile }) {
               <FileUpload folder="newsletters" currentUrl={nlForm.file_url} onUploaded={url => setNlForm({ ...nlForm, file_url: url })} />
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={btn('#16a34a')} onClick={() => save('portal_newsletter', nlForm, () => setNlForm({ title: '', published_date: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
-              {editId && <button style={btn('#64748b')} onClick={() => { setEditId(null); setNlForm({ title: '', published_date: '', file_url: '' }) }}>Cancel</button>}
+              <button style={saveBtn} onClick={() => save('portal_newsletter', nlForm, () => setNlForm({ title: '', published_date: '', file_url: '' }))} disabled={saving || uploading}>{saving ? 'Saving...' : editId ? 'Update' : 'Add'}</button>
+              {editId && <button style={cancelBtn} onClick={() => { setEditId(null); setNlForm({ title: '', published_date: '', file_url: '' }) }}>Cancel</button>}
             </div>
           </div>
           {newsletters.map(n => (
